@@ -27,7 +27,7 @@ SERVICE_ACCOUNT_FILE = os.path.join(BASE_DIR, "service_account.json")
 
 def upload_to_drive(file_path, folder_id):
     # Authenticate using service account
-    creds = Credentials.from_service_account_file(
+    creds = Credentials.from_service_account_info(
         SERVICE_ACCOUNT_FILE,
         scopes=SCOPES
     )
