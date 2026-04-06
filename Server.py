@@ -73,7 +73,7 @@ if st.button("Generate PDF & Upload"):
             pdf_file = generate_pdf(answers)
             st.success(f"PDF generated: {pdf_file}")
             
-            folder_id = "1iajsRfYZ8c0H5bwzLB1SXiY8EkcutGjo"  # replace with your Drive folder ID
+            folder_id = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # replace with your Drive folder ID
             file_id = upload_to_drive(pdf_file, creds, folder_id)
             st.success(f"Uploaded to Google Drive!\nFile ID: {file_id}\nFolder ID: {folder_id}")
         except Exception as e:
