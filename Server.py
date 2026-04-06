@@ -10,7 +10,7 @@ import pickle
 # Paths & OAuth setup
 # ----------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CREDENTIALS_FILE = os.path.join(BASE_DIR, "credentials.json")
+#CREDENTIALS_FILE = os.path.join(BASE_DIR, "credentials.json")
 TOKEN_FILE = os.path.join(BASE_DIR, "token.pkl")
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Your Google Drive folder
