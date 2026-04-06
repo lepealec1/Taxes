@@ -2,12 +2,20 @@
 # app.py
 from Forms.W2 import run_w2
 from Output.F1040 import run_f1040
+import os
 import streamlit as st
-run_f1040("/Users/bobk/TaxProject/1040_2025_filled.pdf")
+# Get the directory of the current Python file
+current_dir = os.path.dirname(os.path.abspath(__file__))
+print(current_dir)
+
+# Build full path to PDF
+pdf_path = os.path.join(current_dir, "1040_2025.pdf")
+
+run_f1040(pdf_path)
+
 
 st.title("Tax App")
 st.write("Streamlit is working!")
-
 
 # Ask user for their name
 name = st.text_input("Enter your name:")
@@ -25,7 +33,3 @@ st.write(f"You selected: {date}")
 st.title("Tax Calculator with W-2 Entry")
 
 run_w2()
-# Example usage:
-pdf_path = "/Users/bobk/TaxProject/1040_2025.pdf"
-list_pdf_fields(pdf_path)
-#run_f1040("/Users/bobk/TaxProject/1040_2025.pdf")
