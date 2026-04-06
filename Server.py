@@ -1,8 +1,8 @@
 import streamlit as st
 from fpdf import FPDF
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
+from google.oauth2.service_account import Credentials
 import os
 
 # --- PDF generation ---
@@ -20,16 +20,17 @@ def generate_pdf(answers_dict, filename="questionnaire.pdf"):
     pdf.output(filename)
     return filename
 
-# --- OAuth 2.0 Google Drive ---
+# --- Google Drive upload using Service Account ---
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CLIENT_SECRET_FILE = os.path.join(BASE_DIR, "Client_Secret.json")
-
+SERVICE_ACCOUNT_FILE = os.path.join(BASE_DIR, "service_account.json")
 
 def upload_to_drive(file_path, folder_id):
-    # Authenticate
-    flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
-    creds = flow.run_local_server(port=8888)
+    # Authenticate using service account
+    creds = Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE,
+        scopes=SCOPES
+    )
     service = build('drive', 'v3', credentials=creds)
 
     # Upload file into specified folder
@@ -38,7 +39,11 @@ def upload_to_drive(file_path, folder_id):
         'parents': [folder_id]
     }
     media = MediaFileUpload(file_path, mimetype='application/pdf')
-    file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+    file = service.files().create(
+        body=file_metadata,
+        media_body=media,
+        fields='id'
+    ).execute()
     return file.get('id')
 
 # --- Streamlit UI ---
@@ -54,23 +59,8 @@ if st.button("Generate PDF & Upload"):
     st.success(f"PDF generated: {pdf_file}")
     
     folder_id = "1iajsRfYZ8c0H5bwzLB1SXiY8EkcutGjo"  # your folder ID
-    file_id = upload_to_drive(pdf_file, folder_id)
-    st.success(f"Uploaded to Google Drive!\nFile ID: {file_id}\nFolder ID: {folder_id}")
-
-
-from google.oauth2.service_account import Credentials
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
-
-SCOPES = ['https://www.googleapis.com/auth/drive.file']
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SERVICE_ACCOUNT_FILE = os.path.join(BASE_DIR, "service_account.json")
-
-creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-service = build('drive', 'v3', credentials=creds)
-
-file_metadata = {'name': 'test.pdf', 'parents': ['your-folder-id']}
-media = MediaFileUpload('test.pdf', mimetype='application/pdf')
-file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-
-print("Uploaded file ID:", file.get('id'))
+    try:
+        file_id = upload_to_drive(pdf_file, folder_id)
+        st.success(f"Uploaded to Google Drive!\nFile ID: {file_id}\nFolder ID: {folder_id}")
+    except Exception as e:
+        st.error(f"Upload failed: {e}")
