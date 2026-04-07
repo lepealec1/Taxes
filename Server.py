@@ -55,7 +55,7 @@ def get_drive_service(credentials_info):
             },
             scopes=['https://www.googleapis.com/auth/drive.file']
         )
-        credentials = flow.run_local_server(port=8888)
+        credentials = flow.run_console(port=8888)
         auth_code = st.text_input("Step 2: Paste the authorization code here:")
         if not auth_code:
             st.stop()  # Stop until code is entered
