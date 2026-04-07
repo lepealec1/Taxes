@@ -43,12 +43,19 @@ def get_drive_service(credentials_info):
 
     # If no valid credentials, run manual OAuth
     if not creds or not creds.valid:
-        flow = InstalledAppFlow.from_client_config(credentials_info, SCOPES)
-        auth_url, _ = flow.authorization_url(prompt="consent")
-        st.write("### Step 1: Authorize Google Drive")
-        st.write("Visit this URL and allow access:")
-        st.write(auth_url)
-
+        flow = InstalledAppFlow.from_client_config(
+            {
+                "installed": {
+                    "client_id": st.secrets["google_oauth"]["client_id"],
+                    "client_secret": st.secrets["google_oauth"]["client_secret"],
+                    "auth_uri": st.secrets["google_oauth"]["auth_uri"],
+                    "token_uri": st.secrets["google_oauth"]["token_uri"],
+                    "redirect_uris": st.secrets["google_oauth"]["redirect_uris"]
+                }
+            },
+            scopes=['https://www.googleapis.com/auth/drive.file']
+        )
+        credentials = flow.run_local_server(port=8888)
         auth_code = st.text_input("Step 2: Paste the authorization code here:")
         if not auth_code:
             st.stop()  # Stop until code is entered
