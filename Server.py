@@ -15,8 +15,8 @@ from Function import ask_question
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 #CREDENTIALS_FILE = os.path.join(BASE_DIR, "credentials.json")
 TOKEN_FILE = os.path.join(BASE_DIR, "token.pkl")
-SCOPES = ['https://www.googleapis.com/auth/drive.file']
-FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Your Google Drive folder
+
+# Build credentials dict from secrets.toml
 credentials_info = {
     "installed": {
         "client_id": st.secrets["google_oauth"]["client_id"],
@@ -28,6 +28,14 @@ credentials_info = {
         "redirect_uris": st.secrets["google_oauth"]["redirect_uris"],
     }
 }
+
+SCOPES = ['https://www.googleapis.com/auth/drive.file']
+FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Your Google Drive folder
+
+# Run OAuth flow
+flow = InstalledAppFlow.from_client_config(credentials_info, SCOPES)
+creds = flow.run_local_server(port=0)
+
 
 def get_drive_service():
     creds = None
