@@ -103,9 +103,9 @@ st.title("PDF Tax + Google Drive Upload")
 
 # --- Questions ---
 BasicInfo()
-HealthInsurance()
-CaResidency()
-MiscQuestions()
+#HealthInsurance()
+#CaResidency()
+#MiscQuestions()
 
 # --- Generate & Upload PDF ---
 if st.button("Generate PDF & Upload"):
