@@ -25,7 +25,7 @@ credentials_info = {
 }
 
 
-TOKEN_FILE = os.path.join(BASE_DIR, "token.pkl")
+
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Your Google Drive folder
 
