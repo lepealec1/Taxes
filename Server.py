@@ -38,7 +38,7 @@ def get_drive_service():
     if not creds or not creds.valid:
         flow = InstalledAppFlow.from_client_config(credentials_info, SCOPES)
         # Use console flow for headless environments
-        creds = flow.run_console()
+        creds = flow.run_local_server(open_browser=False)()
         with open(TOKEN_FILE, "wb") as f:
             pickle.dump(creds, f)
     return build('drive', 'v3', credentials=creds)
