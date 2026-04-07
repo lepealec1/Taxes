@@ -6,6 +6,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 import os
 import pickle
 
+
+from Function import ask_question
+
 # ----------------------------
 # Paths & OAuth setup
 # ----------------------------
@@ -63,13 +66,22 @@ def upload_to_drive(file_path):
 # ----------------------------
 # Streamlit UI
 # ----------------------------
-st.title("PDF Generator + Google Drive Upload")
+st.title("PDF Tax + Google Drive Upload")
 
-# --- Form Inputs ---
-answers = {}
-answers['name'] = st.text_input("Your name")
-answers['email'] = st.text_input("Email")
-answers['refund_method'] = st.selectbox("Refund Method", ["Direct Deposit", "Check by Mail"])
+from BasicInfo import BasicInfo
+from BasicInfo import HealthInsurance
+from BasicInfo import CaResidency
+from BasicInfo import MiscQuestions
+from BasicInfo import answers
+
+BasicInfo()
+HealthInsurance()
+CaResidency()
+MiscQuestions()
+
+
+st.write(answers['filing_status'])
+
 
 # --- Generate & Upload PDF ---
 if st.button("Generate PDF & Upload"):
@@ -84,3 +96,5 @@ if st.button("Generate PDF & Upload"):
 
     except Exception as e:
         st.error(f"Upload failed: {e}")
+
+
