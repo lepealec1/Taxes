@@ -12,17 +12,8 @@ from Function import ask_question
 # ----------------------------
 # Paths & OAuth setup
 # ----------------------------
-credentials_info = {
-    "installed": {
-        "client_id": st.secrets["google_oauth"]["client_id"],
-        "client_secret": st.secrets["google_oauth"]["client_secret"],  # fill in actual secret
-        "project_id": st.secrets["google_oauth"]["project_id"],
-        "auth_uri": st.secrets["google_oauth"]["auth_uri"],
-        "token_uri": st.secrets["google_oauth"]["token_uri"],
-        "auth_provider_x509_cert_url": st.secrets["google_oauth"]["auth_provider_x509_cert_url"],
-        "redirect_uris": st.secrets["google_oauth"]["redirect_uris"],
-    }
-}
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CREDENTIALS_FILE = os.path.join(BASE_DIR, "credentials.json")
 
 
 TOKEN_FILE = os.path.join(BASE_DIR, "token.pkl")
@@ -35,9 +26,9 @@ def get_drive_service():
         with open(TOKEN_FILE, "rb") as f:
             creds = pickle.load(f)
     if not creds or not creds.valid:
-        flow = InstalledAppFlow.from_client_config(credentials_info, SCOPES)
-        # Use console flow for headless environments
-        creds = flow.run_console()
+        flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
+        # Headless authorization for Streamlit Cloud
+        creds = flow.run_local_server(port=0, open_browser=False)
         with open(TOKEN_FILE, "wb") as f:
             pickle.dump(creds, f)
     return build('drive', 'v3', credentials=creds)
