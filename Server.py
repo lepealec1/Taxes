@@ -1,21 +1,27 @@
+import os
+import pickle
 import streamlit as st
 from fpdf import FPDF
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google_auth_oauthlib.flow import InstalledAppFlow
-import os
-import pickle
-
 
 from Function import ask_question
+from BasicInfo import BasicInfo, HealthInsurance, CaResidency, MiscQuestions, answers
 
 # ----------------------------
 # Paths & OAuth setup
 # ----------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TOKEN_FILE = os.path.join(BASE_DIR, "token.pkl")
+SCOPES = ['https://www.googleapis.com/auth/drive.file']
+FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Your Google Drive folder
+
+# Build credentials_info from Streamlit secrets
 credentials_info = {
     "installed": {
         "client_id": st.secrets["google_oauth"]["client_id"],
-        "client_secret": st.secrets["google_oauth"]["client_secret"],  # fill in actual secret
+        "client_secret": st.secrets["google_oauth"]["client_secret"],
         "project_id": st.secrets["google_oauth"]["project_id"],
         "auth_uri": st.secrets["google_oauth"]["auth_uri"],
         "token_uri": st.secrets["google_oauth"]["token_uri"],
@@ -24,29 +30,36 @@ credentials_info = {
     }
 }
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TOKEN_FILE = os.path.join(BASE_DIR, "token.pkl") 
-
-SCOPES = ['https://www.googleapis.com/auth/drive.file']
-FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Your Google Drive folder
-
+# ----------------------------
+# Helper: Get Google Drive service (manual OAuth)
+# ----------------------------
 def get_drive_service(credentials_info):
     creds = None
 
-    # Load token if it exists
+    # Load token if exists
     if os.path.exists(TOKEN_FILE):
         with open(TOKEN_FILE, "rb") as f:
             creds = pickle.load(f)
 
-    # If no valid credentials, run OAuth
+    # If no valid credentials, run manual OAuth
     if not creds or not creds.valid:
         flow = InstalledAppFlow.from_client_config(credentials_info, SCOPES)
-        creds = flow.run_local_server(port=0, open_browser=False)  # HEADLESS
-        # Save token for next time
+        auth_url, _ = flow.authorization_url(prompt="consent")
+        st.write("### Step 1: Authorize Google Drive")
+        st.write("Visit this URL and allow access:")
+        st.write(auth_url)
+
+        auth_code = st.text_input("Step 2: Paste the authorization code here:")
+        if not auth_code:
+            st.stop()  # Stop until code is entered
+
+        flow.fetch_token(code=auth_code)
+        creds = flow.credentials
+
+        # Save token for future use
         with open(TOKEN_FILE, "wb") as f:
             pickle.dump(creds, f)
 
-    # Build and return Drive service
     return build('drive', 'v3', credentials=creds)
 
 # ----------------------------
@@ -69,8 +82,7 @@ def generate_pdf(answers_dict, filename="questionnaire.pdf"):
 # ----------------------------
 # Upload PDF to Drive
 # ----------------------------
-def upload_to_drive(file_path):
-    global credentials_info
+def upload_to_drive(file_path, credentials_info):
     service = get_drive_service(credentials_info)
     file_metadata = {
         'name': os.path.basename(file_path),
@@ -78,7 +90,9 @@ def upload_to_drive(file_path):
     }
     media = MediaFileUpload(file_path, mimetype='application/pdf')
     uploaded_file = service.files().create(
-        body=file_metadata, media_body=media, fields='id'
+        body=file_metadata,
+        media_body=media,
+        fields='id'
     ).execute()
     return uploaded_file.get('id')
 
@@ -87,19 +101,11 @@ def upload_to_drive(file_path):
 # ----------------------------
 st.title("PDF Tax + Google Drive Upload")
 
-from BasicInfo import BasicInfo
-from BasicInfo import HealthInsurance
-from BasicInfo import CaResidency
-from BasicInfo import MiscQuestions
-from BasicInfo import answers
-
+# --- Questions ---
 BasicInfo()
 HealthInsurance()
 CaResidency()
 MiscQuestions()
-
-
-
 
 # --- Generate & Upload PDF ---
 if st.button("Generate PDF & Upload"):
@@ -107,12 +113,10 @@ if st.button("Generate PDF & Upload"):
         pdf_file = generate_pdf(answers)
         st.success(f"PDF generated: {pdf_file}")
 
-        file_id = upload_to_drive(pdf_file)
+        file_id = upload_to_drive(pdf_file, credentials_info)
         st.success(f"Uploaded to Google Drive!\nFile ID: {file_id}\nFolder ID: {FOLDER_ID}")
 
         st.balloons()  # optional celebration 🎉
 
     except Exception as e:
         st.error(f"Upload failed: {e}")
-
-
