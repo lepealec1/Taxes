@@ -70,7 +70,8 @@ def generate_pdf(answers_dict, filename="questionnaire.pdf"):
 # Upload PDF to Drive
 # ----------------------------
 def upload_to_drive(file_path):
-    service = get_drive_service()
+    global credentials_info
+    service = get_drive_service(credentials_info)
     file_metadata = {
         'name': os.path.basename(file_path),
         'parents': [FOLDER_ID]
