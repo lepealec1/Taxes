@@ -30,17 +30,23 @@ TOKEN_FILE = os.path.join(BASE_DIR, "token.pkl")
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Your Google Drive folder
 
-def get_drive_service():
+def get_drive_service(credentials_info):
     creds = None
+
+    # Load token if it exists
     if os.path.exists(TOKEN_FILE):
         with open(TOKEN_FILE, "rb") as f:
             creds = pickle.load(f)
+
+    # If no valid credentials, run OAuth
     if not creds or not creds.valid:
         flow = InstalledAppFlow.from_client_config(credentials_info, SCOPES)
-        # Use console flow for headless environments
-        creds = flow.run_local_server(open_browser=False)()
+        creds = flow.run_local_server(port=0, open_browser=False)  # HEADLESS
+        # Save token for next time
         with open(TOKEN_FILE, "wb") as f:
             pickle.dump(creds, f)
+
+    # Build and return Drive service
     return build('drive', 'v3', credentials=creds)
 
 # ----------------------------
