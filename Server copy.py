@@ -62,3 +62,6 @@ if st.button("Generate PDF & Upload"):
     except Exception as e:
         st.error(f"Upload failed: {e}")
 
+from Function import ask_question
+from BasicInfo import BasicInfo, HealthInsurance, CaResidency, MiscQuestions, answers
+BasicInfo()

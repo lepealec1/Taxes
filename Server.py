@@ -53,3 +53,33 @@ def upload_to_drive(file_path):
         fields='id'
     ).execute()
     return uploaded_file.get('id')
+
+
+def generate_pdf(answers_dict, filename="questionnaire.pdf"):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, "Supplemental Questionnaire", ln=True, align="C")
+    pdf.set_font("Arial", '', 12)
+    for key, value in answers_dict.items():
+        if isinstance(value, list):
+            value = ", ".join(map(str, value))
+        pdf.multi_cell(0, 8, f"{key.replace('_',' ').title()}: {value}")
+        pdf.ln(1)
+    pdf.output(filename)
+    return filename
+
+if st.button("Generate PDF & Upload"):
+    pdf_file = generate_pdf(answers)
+    st.success(f"PDF generated: {pdf_file}")
+
+    try:
+        file_id = upload_to_drive(pdf_file)
+        st.success(f"Uploaded to Google Drive!\nFile ID: {file_id}\nFolder ID: {FOLDER_ID}")
+        st.balloons()
+    except Exception as e:
+        st.error(f"Upload failed: {e}")
+
+from Function import ask_question
+from BasicInfo import BasicInfo, HealthInsurance, CaResidency, MiscQuestions, answers
+BasicInfo()
