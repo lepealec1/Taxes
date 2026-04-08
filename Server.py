@@ -44,7 +44,7 @@ def send_email(pdf_file):
     msg = MIMEMultipart()
     msg["From"] = EMAIL_ADDRESS
     msg["To"] = TO_EMAIL
-    msg["Subject"] = "Tax Questionnaire PDF"
+    msg["Subject"] = answers['name']+"Tax Questionnaire PDF"
 
     # Attach the PDF
     with open(pdf_file, "rb") as f:
