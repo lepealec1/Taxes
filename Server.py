@@ -11,7 +11,6 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 from Function import ask_question
 from BasicInfo import BasicInfo, HealthInsurance, CaResidency, MiscQuestions, answers
-BasicInfo()
 
 # ----------------------------
 # Paths & OAuth setup
