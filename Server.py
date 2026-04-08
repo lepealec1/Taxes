@@ -10,19 +10,27 @@ from BasicInfo import BasicInfo, answers
 BasicInfo()
 
 # --- Generate PDF ---
-def generate_pdf(answers_dict, filename="questionnaire.pdf"):
+def generate_pdf(answers_dict):
+    # Use the 'name' answer to create filename, fallback if missing
+    name = answers_dict.get("name", "questionnaire").replace(" ", "_")
+    filename = f"{name}.pdf"
+
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", 'B', 16)
     pdf.cell(0, 10, "Supplemental Questionnaire", ln=True, align="C")
     pdf.set_font("Arial", '', 12)
+
     for key, value in answers_dict.items():
         if isinstance(value, list):
             value = ", ".join(map(str, value))
         pdf.multi_cell(0, 8, f"{key.replace('_',' ').title()}: {value}")
         pdf.ln(1)
+
     pdf.output(filename)
     return filename
+
+
 
 # --- Email PDF ---
 def send_email(pdf_file):
@@ -62,3 +70,8 @@ if st.button("Generate PDF & Email"):
         st.balloons()
     except Exception as e:
         st.error(f"Failed to send email: {e}")
+
+        
+
+
+
