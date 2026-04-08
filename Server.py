@@ -1,103 +1,22 @@
-#https://vita-tax-questionnaire.streamlit.app
-#vita-tax-questionnaire
-
-import os
-import pickle
 import streamlit as st
-from fpdf import FPDF
+import pickle
+import os
 from googleapiclient.discovery import build
+from google.oauth2 import service_account
 from googleapiclient.http import MediaFileUpload
-from google_auth_oauthlib.flow import InstalledAppFlow
 
-from Function import ask_question
-from BasicInfo import BasicInfo, HealthInsurance, CaResidency, MiscQuestions, answers
-
-# ----------------------------
-# Paths & OAuth setup
-# ----------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TOKEN_FILE = os.path.join(BASE_DIR, "token.pkl")
+FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
-FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Your Google Drive folder
 
-st.write(st.secrets["google_oauth"])
-
-# Build credentials_info from Streamlit secrets
-credentials_info = {
-    "web": {
-        "client_id": st.secrets["google_oauth"]["client_id"],
-        "client_secret": st.secrets["google_oauth"]["client_secret"],
-        "project_id": st.secrets["google_oauth"]["project_id"],
-        "auth_uri": st.secrets["google_oauth"]["auth_uri"],
-        "token_uri": st.secrets["google_oauth"]["token_uri"],
-        "auth_provider_x509_cert_url": st.secrets["google_oauth"]["auth_provider_x509_cert_url"],
-        "redirect_uris": st.secrets["google_oauth"]["redirect_uris"],
-    }
-}
-st.write(credentials_info)
-
-# ----------------------------
-# Helper: Get Google Drive service (manual OAuth)
-# ----------------------------
-def get_drive_service(credentials_info):
-    creds = None
-
-    # Load saved token if exists
-    if os.path.exists(TOKEN_FILE):
-        with open(TOKEN_FILE, "rb") as f:
-            creds = pickle.load(f)
-
-    # If no valid credentials, run manual OAuth
-    if not creds or not creds.valid:
-        from google_auth_oauthlib.flow import Flow
-
-        flow = Flow.from_client_config(
-            credentials_info, 
-            scopes=['https://www.googleapis.com/auth/drive.file'],
-            redirect_uri="https://vita-tax-questionnaire.streamlit.app/"
-        )
-        # Step 1: generate authorization URL
-        auth_url, _ = flow.authorization_url(prompt='consent')
-        st.markdown("### Step 1: Authorize Google Drive")
-        st.markdown(f"[Click here to authorize]({auth_url})")
-
-        # Step 2: get code from user
-        auth_code = st.text_input("Step 2: Paste the authorization code here:")
-        if not auth_code:
-            st.stop()  # wait until code is entered
-
-        # Exchange code for credentials
-        flow.fetch_token(code=auth_code)
-        creds = flow.credentials
-
-        # Save token for future use
-        with open(TOKEN_FILE, "wb") as f:
-            pickle.dump(creds, f)
-
-    # Build and return the Drive service
+def get_drive_service():
+    creds = service_account.Credentials.from_service_account_info(
+        st.secrets["google_service_account"],
+        scopes=SCOPES
+    )
     return build('drive', 'v3', credentials=creds)
-# ----------------------------
-# PDF generation
-# ----------------------------
-def generate_pdf(answers_dict, filename="questionnaire.pdf"):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, "Supplemental Questionnaire", ln=True, align="C")
-    pdf.set_font("Arial", '', 12)
-    for key, value in answers_dict.items():
-        if isinstance(value, list):
-            value = ", ".join(map(str, value))
-        pdf.multi_cell(0, 8, f"{key.replace('_',' ').title()}: {value}")
-        pdf.ln(1)
-    pdf.output(filename)
-    return filename
 
-# ----------------------------
-# Upload PDF to Drive
-# ----------------------------
-def upload_to_drive(file_path, credentials_info):
-    service = get_drive_service(credentials_info)
+def upload_to_drive(file_path):
+    service = get_drive_service()
     file_metadata = {
         'name': os.path.basename(file_path),
         'parents': [FOLDER_ID]
@@ -109,28 +28,3 @@ def upload_to_drive(file_path, credentials_info):
         fields='id'
     ).execute()
     return uploaded_file.get('id')
-
-# ----------------------------
-# Streamlit UI
-# ----------------------------
-st.title("PDF Tax + Google Drive Upload")
-
-# --- Questions ---
-BasicInfo()
-#HealthInsurance()
-#CaResidency()
-#MiscQuestions()
-
-# --- Generate & Upload PDF ---
-if st.button("Generate PDF & Upload"):
-    try:
-        pdf_file = generate_pdf(answers)
-        st.success(f"PDF generated: {pdf_file}")
-
-        file_id = upload_to_drive(pdf_file, credentials_info)
-        st.success(f"Uploaded to Google Drive!\nFile ID: {file_id}\nFolder ID: {FOLDER_ID}")
-
-        st.balloons()  # optional celebration 🎉
-
-    except Exception as e:
-        st.error(f"Upload failed: {e}")
