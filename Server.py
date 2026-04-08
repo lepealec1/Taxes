@@ -50,8 +50,7 @@ def get_drive_service(credentials_info):
                     "client_id": st.secrets["google_oauth"]["client_id"],
                     "client_secret": st.secrets["google_oauth"]["client_secret"],
                     "auth_uri": st.secrets["google_oauth"]["auth_uri"],
-                    "token_uri": st.secrets["google_oauth"]["token_uri"],
-                    "redirect_uris": st.secrets["google_oauth"]["redirect_uris"]
+                    "token_uri": st.secrets["google_oauth"]["token_uri"]
                 }
             },
             scopes=['https://www.googleapis.com/auth/drive.file']
