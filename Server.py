@@ -41,29 +41,26 @@ st.write(credentials_info)
 def get_drive_service(credentials_info):
     creds = None
 
-    # Load token if exists
+    # Load saved token if exists
     if os.path.exists(TOKEN_FILE):
         with open(TOKEN_FILE, "rb") as f:
             creds = pickle.load(f)
 
     # If no valid credentials, run manual OAuth
     if not creds or not creds.valid:
-        flow = InstalledAppFlow.from_client_config(
-            {
-                "installed": {
-                    "client_id": st.secrets["google_oauth"]["client_id"],
-                    "client_secret": st.secrets["google_oauth"]["client_secret"],
-                    "auth_uri": st.secrets["google_oauth"]["auth_uri"],
-                    "token_uri": st.secrets["google_oauth"]["token_uri"]
-                }
-            },
-            scopes=['https://www.googleapis.com/auth/drive.file']
-        )
-        credentials = flow.run_console()
+        flow = InstalledAppFlow.from_client_config(credentials_info, SCOPES)
+        
+        # Step 1: generate authorization URL
+        auth_url, _ = flow.authorization_url(prompt='consent')
+        st.markdown("### Step 1: Authorize Google Drive")
+        st.markdown(f"[Click here to authorize]({auth_url})")
+
+        # Step 2: get code from user
         auth_code = st.text_input("Step 2: Paste the authorization code here:")
         if not auth_code:
-            st.stop()  # Stop until code is entered
+            st.stop()  # wait until code is entered
 
+        # Exchange code for credentials
         flow.fetch_token(code=auth_code)
         creds = flow.credentials
 
@@ -71,8 +68,8 @@ def get_drive_service(credentials_info):
         with open(TOKEN_FILE, "wb") as f:
             pickle.dump(creds, f)
 
+    # Build and return the Drive service
     return build('drive', 'v3', credentials=creds)
-
 # ----------------------------
 # PDF generation
 # ----------------------------
