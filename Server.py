@@ -69,6 +69,12 @@ def generate_pdf(answers_dict, filename="questionnaire.pdf"):
     pdf.output(filename)
     return filename
 
+
+from Function import ask_question
+from BasicInfo import BasicInfo, HealthInsurance, CaResidency, MiscQuestions, answers
+BasicInfo()
+
+
 if st.button("Generate PDF & Upload"):
     pdf_file = generate_pdf(answers)
     st.success(f"PDF generated: {pdf_file}")
@@ -79,7 +85,3 @@ if st.button("Generate PDF & Upload"):
         st.balloons()
     except Exception as e:
         st.error(f"Upload failed: {e}")
-
-from Function import ask_question
-from BasicInfo import BasicInfo, HealthInsurance, CaResidency, MiscQuestions, answers
-BasicInfo()
