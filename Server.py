@@ -1,56 +1,19 @@
-from fpdf import FPDF
 import os
-import pickle
+from fpdf import FPDF
 import streamlit as st
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google.oauth2 import service_account
 
-TOKEN_FILE = "token.pkl"
+FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Folder shared with service account
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
-FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Your folder in My Drive
-
-from google_auth_oauthlib.flow import Flow
 
 def get_drive_service():
-    creds = None
-    if os.path.exists(TOKEN_FILE):
-        with open(TOKEN_FILE, "rb") as f:
-            creds = pickle.load(f)
-
-    if not creds or not creds.valid:
-        flow = Flow.from_client_config(
-            {
-                "web": {
-                    "client_id": st.secrets["google_oauth"]["client_id"],
-                    "client_secret": st.secrets["google_oauth"]["client_secret"],
-                    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                    "token_uri": "https://oauth2.googleapis.com/token",
-                    "redirect_uris": ["https://vita-tax-questionnaire.streamlit.app/"]
-                }
-            },
-            scopes=SCOPES,
-            redirect_uri="https://vita-tax-questionnaire.streamlit.app/"
-        )
-
-        # Step 1: Generate auth URL
-        auth_url, _ = flow.authorization_url(prompt='consent')
-        st.markdown(f"[Authorize Google Drive]({auth_url})")
-
-        # Step 2: Ask user to paste code from URL
-        auth_code = st.text_input("Paste the authorization code here:")
-        if not auth_code:
-            st.stop()
-
-        # Exchange code for credentials
-        flow.fetch_token(code=auth_code)
-        creds = flow.credentials
-
-        with open(TOKEN_FILE, "wb") as f:
-            pickle.dump(creds, f)
-
+    creds = service_account.Credentials.from_service_account_info(
+        st.secrets["google_service_account"],
+        scopes=SCOPES
+    )
     return build('drive', 'v3', credentials=creds)
-
 
 def upload_to_drive(file_path):
     service = get_drive_service()
@@ -66,7 +29,6 @@ def upload_to_drive(file_path):
     ).execute()
     return uploaded_file.get('id')
 
-
 def generate_pdf(answers_dict, filename="questionnaire.pdf"):
     pdf = FPDF()
     pdf.add_page()
@@ -81,11 +43,8 @@ def generate_pdf(answers_dict, filename="questionnaire.pdf"):
     pdf.output(filename)
     return filename
 
-
-from Function import ask_question
-from BasicInfo import BasicInfo, HealthInsurance, CaResidency, MiscQuestions, answers
+from BasicInfo import BasicInfo, answers
 BasicInfo()
-
 
 if st.button("Generate PDF & Upload"):
     pdf_file = generate_pdf(answers)
@@ -93,7 +52,7 @@ if st.button("Generate PDF & Upload"):
 
     try:
         file_id = upload_to_drive(pdf_file)
-        st.success(f"Uploaded to Google Drive!\nFile ID: {file_id}\nFolder ID: {FOLDER_ID}")
+        st.success(f"Uploaded to Google Drive! File ID: {file_id}")
         st.balloons()
     except Exception as e:
         st.error(f"Upload failed: {e}")
