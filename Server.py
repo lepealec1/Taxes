@@ -27,7 +27,7 @@ def generate_pdf(answers_dict, filename="questionnaire.pdf"):
 # --- Email PDF ---
 def send_email(pdf_file):
     # Generic email to send to
-    TO_EMAIL = "lepelec518@gmail.com"  # replace with your generic email
+    TO_EMAIL = "lepealec518@gmail.com"  # replace with your generic email
 
     # Your Gmail account (or app password)
     EMAIL_ADDRESS = st.secrets["email"]["user"]
