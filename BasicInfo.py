@@ -12,7 +12,6 @@ def BasicInfo():
     # Single-selection Filing Status
     filings_statuses = ["Single", "Head of Houeshold", "Married Filing Jointly", "Married Filing Seperately"]
     with st.expander("Basic Information ", expanded=True):
-        filings_statuses = ["Single", "Head of Household", "Married Filing Jointly", "Married Filing Separately"]
         ask_question(
             answers,
             "filing_status",
