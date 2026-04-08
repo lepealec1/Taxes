@@ -20,16 +20,16 @@ FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Your Google Drive folder
 st.write(st.secrets["google_oauth"])
 
 # Build credentials_info from Streamlit secrets
-credentials_info = {
-    "installed": {
-        "client_id": st.secrets["google_oauth"]["client_id"],
-        "client_secret": st.secrets["google_oauth"]["client_secret"],
-        "project_id": st.secrets["google_oauth"]["project_id"],
-        "auth_uri": st.secrets["google_oauth"]["auth_uri"],
-        "token_uri": st.secrets["google_oauth"]["token_uri"],
-        "auth_provider_x509_cert_url": st.secrets["google_oauth"]["auth_provider_x509_cert_url"],
-    }
-}
+#credentials_info = {
+ #   "installed": {
+  #      "client_id": st.secrets["google_oauth"]["client_id"],
+   #     "client_secret": st.secrets["google_oauth"]["client_secret"],
+    #    "project_id": st.secrets["google_oauth"]["project_id"],
+     #   "auth_uri": st.secrets["google_oauth"]["auth_uri"],
+      #  "token_uri": st.secrets["google_oauth"]["token_uri"],
+      #  "auth_provider_x509_cert_url": st.secrets["google_oauth"]["auth_provider_x509_cert_url"],
+#    }
+#}
 
 # ----------------------------
 # Helper: Get Google Drive service (manual OAuth)
