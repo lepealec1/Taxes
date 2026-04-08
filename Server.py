@@ -10,17 +10,16 @@ TOKEN_FILE = "token.pkl"
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Your folder in My Drive
 
+from google_auth_oauthlib.flow import Flow
+
 def get_drive_service():
     creds = None
-
-    # Load saved token if it exists
     if os.path.exists(TOKEN_FILE):
         with open(TOKEN_FILE, "rb") as f:
             creds = pickle.load(f)
 
-    # If no valid credentials, run OAuth
     if not creds or not creds.valid:
-        flow = InstalledAppFlow.from_client_config(
+        flow = Flow.from_client_config(
             {
                 "web": {
                     "client_id": st.secrets["google_oauth"]["client_id"],
@@ -30,16 +29,28 @@ def get_drive_service():
                     "redirect_uris": ["https://vita-tax-questionnaire.streamlit.app/"]
                 }
             },
-            scopes=SCOPES
+            scopes=SCOPES,
+            redirect_uri="https://vita-tax-questionnaire.streamlit.app/"
         )
 
-        creds = flow.run_local_server(port=0)  # automatic browser-based OAuth
+        # Step 1: Generate auth URL
+        auth_url, _ = flow.authorization_url(prompt='consent')
+        st.markdown(f"[Authorize Google Drive]({auth_url})")
 
-        # Save token for future use
+        # Step 2: Ask user to paste code from URL
+        auth_code = st.text_input("Paste the authorization code here:")
+        if not auth_code:
+            st.stop()
+
+        # Exchange code for credentials
+        flow.fetch_token(code=auth_code)
+        creds = flow.credentials
+
         with open(TOKEN_FILE, "wb") as f:
             pickle.dump(creds, f)
 
     return build('drive', 'v3', credentials=creds)
+
 
 def upload_to_drive(file_path):
     service = get_drive_service()
