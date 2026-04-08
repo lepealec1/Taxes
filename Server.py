@@ -25,9 +25,9 @@ credentials_info = {
         "client_id": st.secrets["google_oauth"]["client_id"],
         "client_secret": st.secrets["google_oauth"]["client_secret"],
         "project_id": st.secrets["google_oauth"]["project_id"],
+        "auth_uri": st.secrets["google_oauth"]["auth_uri"],
         "token_uri": st.secrets["google_oauth"]["token_uri"],
         "auth_provider_x509_cert_url": st.secrets["google_oauth"]["auth_provider_x509_cert_url"],
-        "redirect_uris": st.secrets["google_oauth"]["redirect_uris"],
     }
 }
 
