@@ -13,8 +13,7 @@ from Function import ask_question
 # Paths & OAuth setup
 # ----------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CREDENTIALS_FILE = os.path.join(BASE_DIR, "credentials.json")
-
+CREDENTIALS_FILE = os.path.join(BASE_DIR, "Desktop_Credentials.json")
 
 TOKEN_FILE = os.path.join(BASE_DIR, "token.pkl")
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
@@ -77,9 +76,9 @@ from BasicInfo import MiscQuestions
 from BasicInfo import answers
 
 BasicInfo()
-HealthInsurance()
-CaResidency()
-MiscQuestions()
+#HealthInsurance()
+#CaResidency()
+#MiscQuestions()
 
 
 
