@@ -4,3 +4,4 @@
 # Ignore all pickle files
 *.pkl
 *.pkl
+token.pkl
