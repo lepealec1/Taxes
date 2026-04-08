@@ -24,7 +24,7 @@ st.write(st.secrets["google_oauth"])
 
 # Build credentials_info from Streamlit secrets
 credentials_info = {
-    "installed": {
+    "web": {
         "client_id": st.secrets["google_oauth"]["client_id"],
         "client_secret": st.secrets["google_oauth"]["client_secret"],
         "project_id": st.secrets["google_oauth"]["project_id"],
@@ -49,8 +49,13 @@ def get_drive_service(credentials_info):
 
     # If no valid credentials, run manual OAuth
     if not creds or not creds.valid:
-        flow = InstalledAppFlow.from_client_config(credentials_info, SCOPES)
-        
+        from google_auth_oauthlib.flow import Flow
+
+        flow = Flow.from_client_config(
+            credentials_info, 
+            scopes=['https://www.googleapis.com/auth/drive.file'],
+            redirect_uri="https://vita-tax-questionnaire.streamlit.app/"
+        )
         # Step 1: generate authorization URL
         auth_url, _ = flow.authorization_url(prompt='consent')
         st.markdown("### Step 1: Authorize Google Drive")
