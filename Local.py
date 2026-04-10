@@ -1,23 +1,15 @@
 import streamlit as st
 from fpdf import FPDF
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
-from google_auth_oauthlib.flow import InstalledAppFlow
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+from BasicInfo import BasicInfo, answers
 import os
 import pickle
 
 
 from Function import ask_question
-
-# ----------------------------
-# Paths & OAuth setup
-# ----------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CREDENTIALS_FILE = os.path.join(BASE_DIR, "Desktop_Credentials.json")
-
-TOKEN_FILE = os.path.join(BASE_DIR, "token.pkl")
-SCOPES = ['https://www.googleapis.com/auth/drive.file']
-FOLDER_ID = "1X7OA9TyD7cVTYXhLrj--Z_T7mQqXu5nt"  # Your Google Drive folder
 
 def get_drive_service():
     creds = None
@@ -49,24 +41,6 @@ def generate_pdf(answers_dict, filename="questionnaire.pdf"):
     pdf.output(filename)
     return filename
 
-# ----------------------------
-# Upload PDF to Drive
-# ----------------------------
-def upload_to_drive(file_path):
-    service = get_drive_service()
-    file_metadata = {
-        'name': os.path.basename(file_path),
-        'parents': [FOLDER_ID]
-    }
-    media = MediaFileUpload(file_path, mimetype='application/pdf')
-    uploaded_file = service.files().create(
-        body=file_metadata, media_body=media, fields='id'
-    ).execute()
-    return uploaded_file.get('id')
-
-# ----------------------------
-# Streamlit UI
-# ----------------------------
 st.title("PDF Tax + Google Drive Upload")
 
 from BasicInfo import BasicInfo
@@ -74,27 +48,65 @@ from BasicInfo import HealthInsurance
 from BasicInfo import CaResidency
 from BasicInfo import MiscQuestions
 from BasicInfo import answers
+from BasicInfo import Disclaimers, Income, RequiredDocuments,F1099R,SSA
+from BasicInfo import SchC, SchD
 
+
+Disclaimers()
+RequiredDocuments()
 BasicInfo()
-#HealthInsurance()
-#CaResidency()
-#MiscQuestions()
+HealthInsurance()
+CaResidency()
+MiscQuestions()
+#with st.expander("Income", expanded=False):
+ #   Income()
+  #  F1099R()
+   # SSA()
+    #SchC()
+#    SchD()
 
+with st.expander("Deductions & Credits", expanded=True):
+    SchD()    
 
+def send_email(pdf_file):
+    # Generic email to send to
+    TO_EMAIL = "lepealec518@gmail.com"  # replace with your generic email
 
+    # Your Gmail account (or app password)
+    EMAIL_ADDRESS = "lepealec518@gmail.com"
+    EMAIL_PASSWORD = "jezv tutk apta lfko"
 
-# --- Generate & Upload PDF ---
-if st.button("Generate PDF & Upload"):
+    msg = MIMEMultipart()
+    msg["From"] = EMAIL_ADDRESS
+    msg["To"] = TO_EMAIL
+    msg["Subject"] = answers['name']+"Tax Questionnaire PDF"
+
+    # Attach the PDF
+    with open(pdf_file, "rb") as f:
+        part = MIMEBase("application", "octet-stream")
+        part.set_payload(f.read())
+    encoders.encode_base64(part)
+    part.add_header("Content-Disposition", f"attachment; filename={pdf_file}")
+    msg.attach(part)
+
+    # Send email
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        server.send_message(msg)
+
+# --- Streamlit UI ---
+if st.button("Generate PDF & Email"):
+    pdf_file = generate_pdf(answers)
+    st.success(f"PDF generated: {pdf_file}")
+
     try:
-        pdf_file = generate_pdf(answers)
-        st.success(f"PDF generated: {pdf_file}")
-
-        file_id = upload_to_drive(pdf_file)
-        st.success(f"Uploaded to Google Drive!\nFile ID: {file_id}\nFolder ID: {FOLDER_ID}")
-
-        st.balloons()  # optional celebration 🎉
-
+        send_email(pdf_file)
+        st.success("PDF sent to generic email!")
+        st.balloons()
     except Exception as e:
-        st.error(f"Upload failed: {e}")
+        st.error(f"Failed to send email: {e}")
+
+        
+
 
 
