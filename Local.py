@@ -1,3 +1,6 @@
+# C:\Users\alepe\AppData\Local\Programs\Python\Python313\Scripts\streamlit.exe run c:\repos\Taxes\Local.py
+
+
 import streamlit as st
 from fpdf import FPDF
 import smtplib
@@ -106,7 +109,5 @@ if st.button("Generate PDF & Email"):
     except Exception as e:
         st.error(f"Failed to send email: {e}")
 
+
         
-
-
-

@@ -1,6 +1,10 @@
+#✔️
+
 import streamlit as st
 from Function import ask_question
 yes_no=['Yes','No']
+typical_basic_response=["Yes","No","Unsure"]
+
 answers={}
 def Disclaimers():
     with st.expander("Disclaimer", expanded=False):
@@ -20,7 +24,7 @@ def RequiredDocuments():
         st.write("- **Health Insurance Information** (Form 1095-A, 1095-B, or 1095-C)")
         st.write("- **Previous Year Tax Return** (optional, but helpful for reference)")
         st.write("Having these documents ready will help you complete the questionnaire faster and ensure accurate reporting.")
-
+from datetime import date
 
 def BasicInfo():
     global answers
@@ -28,10 +32,18 @@ def BasicInfo():
     # Collect user input
     #(answers, key_name, question, input_type="text", options=None, columns=True)
     # Single-selection Filing Status
-    with st.expander("Basic Information ", expanded=False):
+    current_tax_year=date.today().year-1
+    with st.expander("Basic Information ", expanded=True):
+        ask_question(answers, "tax_year",
+            "Select the Tax Year:",
+            input_type="radio",
+            options=list(range(current_tax_year, current_tax_year - 5, -1))
+        )  
+        if answers.get('tax_year') in range(current_tax_year-3, current_tax_year - 5, -1):
+             st.warning("⚠️ As they are no longer accepting e-files for this tax year anymore, this will have to be a paper return, meaning you will have to mail in the tax return to the IRS and/or the FTB.")
         ask_question(answers, "name", "First Name", input_type="text")
         ask_question(answers, "email", "Email", input_type="text")
-        filings_statuses = ["Single", "Head of Houeshold", "Married Filing Jointly", "Married Filing Separately"]
+        filings_statuses = ["Single", "Head of Houeshold", "Married Filing Jointly", "Married Filing Separately","Other","Unsure"]
         ask_question(answers, "phone", "Phone Number", input_type="text")
         ask_question(
             answers,
@@ -39,11 +51,81 @@ def BasicInfo():
             "Select your filing status:",
             input_type="radio",
             options=filings_statuses,
-            columns=False,
-            allow_none=True
+            columns=False
         )
+        if answers.get('filing_status') == "Other" or answers.get('filing_status') == "Unsure":
+            ask_question(
+                answers,
+                "filing_status_other",
+                "Explain your filing status:",
+                input_type="text_input",
+            )
         if answers.get('filing_status') == "Married Filing Separately":
-                    st.warning("⚠️ Married Filing Separately may be out of scope for VITA services.")
+            ask_question(
+                answers,
+                "legally_married",
+               f"1) Were you legally married as of December 31, {answers.get('tax_year')}?",
+                            input_type="radio",
+                options=yes_no,
+                help_text="\n\n You are considered married if you were legally seperated under a divorce or separated maintenance agreement decree. \n\n Marriage status does not depend on where a spouse lives."
+            )
+            if answers.get('legally_married') == "No":
+                ask_question(
+                    answers,
+                    "spouse_died",
+        f"4) Did your spouse die in {answers.get('tax_year')-2} or {answers.get('tax_year')-1}?",
+                                input_type="radio",
+                    options=yes_no
+                )
+            if answers.get('legally_married') == "Yes":
+                ask_question(
+                    answers,
+                    "file_jointly",
+                "2) Do you wish to filing a joint return?",
+                                input_type="radio",
+                    options=yes_no
+                )
+                if answers.get('file_jointly') == "Yes":
+                        st.warning("✔️ Your filing status is married filing jointly.")
+                        return
+                if answers.get('file_jointly') == "No" and answers.get('file_jointly') == "No":
+                    ask_question(
+                        answers,
+                        "married_follow_up_questions",
+                    f"3) Do all the following apply? \n\n• You file a separate return from your spouse \n\n• You paid more than half the cost of keeping up your home for the required period of time \n\n• Your spouse did not live in your home during the last 6 months of {answers.get('tax_year')} \n\n• Your home was the main home of your child, stepchild, or foster child for more than half the year (a grandchild doesn’t meet this test). For rules applying to birth, death, or temporary absence during the year, see Publication 17 \n\n• You claim an exemption for the child (unless the noncustodial parent claims the child under rules for divorced or separated parents or parents who live apart)",
+                                    input_type="radio",
+                        options=yes_no
+                    )
+                    if answers.get('married_follow_up_questions')=="Yes":
+                        st.warning("✔️ You are considered unmarried and your filing status is head of houseshold.")
+                        return
+                    if answers.get('married_follow_up_questions')=="No":
+                        st.warning("❌ You are considered married and your filing status is married filing seperately which is out of scope.")
+                        return
+        if answers.get('spouse_died') == "Yes":
+            ask_question(
+                answers,
+                "qualified_surviving_spouse",
+                    f"5) Do all of the following apply? \n\n• You were entitled to file a joint return with your spouse for the year your spouse died \n\n• You didn’t remarry before the end of {answers.get('tax_year')} \n\n• You have a child or stepchild who lived with you all year, except for temporary absences or other limited exceptions, and who is your dependent or who would qualify as your dependent except that: he or she does not meet the gross income test, does not meet the joint return test, or except that you may be claimed as a dependent by another taxpayer. Don’t include a grandchild or foster child \n\n• You paid more than half the cost of keeping up the home for {answers.get('tax_year')}",
+                            input_type="radio",
+                options=yes_no
+            )
+            if answers.get('qualified_surviving_spouse')=="Yes":
+                st.warning("✔️ Your filing status is qualifying surviving spouse.")
+                return
+        if answers.get('qualified_surviving_spouse')=="No":
+            ask_question(
+                answers,
+                "MFS_HOH_S",
+                f"6) Do both of the following apply? \n\n• You paid more than 1/2 the cost of keeping up your home for {answers.get('tax_year')} \n\n• A “qualifying person” lived with you in your home for more than 1/2 the year. If the qualifying person is your dependent parent, your dependent parent does not have to live with you",
+                            input_type="radio",
+                options=yes_no )
+            if answers.get('MFS_HOH_S')=="Yes":
+                st.warning("✔️ Your filing status is head of houseshold.")
+                return
+            if answers.get('MFS_HOH_S')=="No":
+                st.warning("✔️ Your filing status is single.")
+                return
 
 def HealthInsurance():
     global answers
@@ -62,7 +144,7 @@ def HealthInsurance():
             help_text="Household includes you, your spouse (if married), and anyone you claim as a dependent on your tax return."
         )
         if answers.get("insurance_status") in health_insurance_responses[0:2]:
-            ask_question(answers, "forms", "Which form(s) do you have?", 
+            ask_question(answers, "health_forms", "Which form(s) do you have?", 
                         input_type="checkbox",
                         options=["1095-A", "1095-B", "1095-C"],
                         columns=True)
@@ -72,8 +154,14 @@ def HealthInsurance():
                         input_type="checkbox",
                         options=["Medi-Cal", "Medicaid", "Medicare", "Employee Sponsored", "Other"],
                         columns=True)
+        health_forms=answers.get("health_forms") or []
+        if  "1095-A" in health_forms:
+            ask_question(answers, "formAAAs", "WAAAhich form(s) do you have?", 
+                        input_type="checkbox",
+                        options=["1095-A", "1095-B", "1095-C"],
+                        columns=True)
 
-typical_basic_response=["Yes","No","Unsure"]
+
 
 def CaResidency():
     global answers
@@ -166,7 +254,7 @@ def F1099R():
         )
 
         if answers.get("code_7_no_ira") == "Yes":
-            st.success("✅ In Scope – Stop here")
+            st.success("✔️ In Scope – Stop here")
             return
 
         # ----------------------------
@@ -188,7 +276,7 @@ def F1099R():
                 "What were the distribution funds used for?",
                 input_type="text"
             )
-            st.success("✅ In Scope – Stop here")
+            st.success("✔️ In Scope – Stop here")
             return
 
         # ----------------------------
@@ -249,7 +337,7 @@ def F1099R():
             if answers.get("code_2_ira_nondeduct") == "Yes":
                 st.error("❌ Out of Scope – Stop here")
             else:
-                st.success("✅ In Scope – Stop here")
+                st.success("✔️ In Scope – Stop here")
             return
 
         # ----------------------------
@@ -289,10 +377,10 @@ def F1099R():
                 if answers.get("cost_basis") == "Yes":
                     st.error("❌ Out of Scope – Stop here")
                 else:
-                    st.success("✅ In Scope – Stop here")
+                    st.success("✔️ In Scope – Stop here")
 
             else:
-                st.success("✅ In Scope (Survivor benefits) – Stop here")
+                st.success("✔️ In Scope (Survivor benefits) – Stop here")
 
             return
 
@@ -403,7 +491,7 @@ def SSA():
 
             answers["ssa_lump_sum_details"].append(year_data)
 
-        st.success("✅ Lump sum Social Security details captured")
+        st.success("✔️ Lump sum Social Security details captured")
 
 
 import streamlit as st
@@ -549,28 +637,22 @@ def SchC():
                                 # Append year/business data to answers
                     answers["schedule_c_details"].append(year_data)
 
-                
-
-import streamlit as st
-from Function import ask_question
-yes_no=['Yes','No']
-answers={}
 def SchD():
-    global answers, yes_no
+    global answers, yes_no, typical_basic_response
     with st.expander("Sale of Capital Assets", expanded=True):
         ask_question(
             answers,
             key_name="sold_stocks_or_etfs",
             question="Did you sell stocks, mutual funds, or ETFs outside a retirement account?",
             input_type="radio",
-            options=["Yes", "No"]
+            options=typical_basic_response
         )
         ask_question(
             answers,
             key_name="transactions",
             question="Did you have transactions involving options, futures, or commodities?",
             input_type="radio",
-            options=["Yes", "No"]
+            options=typical_basic_response
         )
         if answers.get('transactions') == "Yes":
             st.warning("❌ Out of scope.")
@@ -580,7 +662,7 @@ def SchD():
             key_name="crypto",
             question="Did you sell any cyptocurrency assets or earn any cryptocurrency income (1099-DA)?",
             input_type="radio",
-            options=["Yes", "No"]
+            options=typical_basic_response
         )
         if answers.get('crypto') == "Yes":
                     st.warning("❌ Out of scope.")
@@ -591,7 +673,7 @@ def SchD():
             key_name="SCH_D_Codes",
             question="Do any of these codes appear on your 1099-B forms? \n\n C, D, N, Q, R, S, X, Y, or Z",
             input_type="radio",
-            options=["Yes", "No"]
+            options=typical_basic_response
             )
         if answers.get('SCH_D_Codes') == "Yes":
             st.warning("❌ Out of scope.")
@@ -602,13 +684,9 @@ def SchD():
             key_name="complex_basis",
             question="Do you have complex basis adjustments such as cnoncovered securities, unreported cost basis or wash sales (unless wash sale adjustment is reported clearly)?",
             input_type="radio",
-            options=["Yes", "No"]
+            options=typical_basic_response
             )
         if answers.get('complex_basis') == "Yes":
                 st.warning("❌ Out of scope.")
                 return
-        st.warning ("In scope.")
-
-
-        #st.warning("❌ Out of scope if any of the following apply: \n\n 1. You sold digital assets. \n\n 2. Code C, D, N, P, Q R, S, X, Y, or Z appears on your 1099-B. \n\n 3. You had Transactions involving options, futures, or commodities. \n\n 4. Complex basis adjustments or unreported costs bases. \n\n 5. Wash sales unless clearly reported on tax forms.")
-        
+        st.warning ("✔️ In scope.")
