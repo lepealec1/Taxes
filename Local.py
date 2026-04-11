@@ -44,7 +44,7 @@ def generate_pdf(answers_dict, filename="questionnaire.pdf"):
     pdf.output(filename)
     return filename
 
-st.title("VITA TAX Questionnaire")
+st.title("VITA Supplemental Questionnaire")
 
 from BasicInfo import BasicInfo
 from BasicInfo import HealthInsurance
