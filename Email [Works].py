@@ -1,9 +1,5 @@
 import streamlit as st
 from fpdf import FPDF
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
 from BasicInfo import BasicInfo, answers
 
 # --- Collect answers ---

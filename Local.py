@@ -1,48 +1,21 @@
 # C:\Users\alepe\AppData\Local\Programs\Python\Python313\Scripts\streamlit.exe run c:\repos\Taxes\Local.py
-
-
-import streamlit as st
-from fpdf import FPDF
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
+from fpdf import FPDF
+import datetime
+import textwrap
+import streamlit as st
+from fpdf import FPDF
 from BasicInfo import BasicInfo, answers
 import os
 import pickle
 
 
-from Function import ask_question
+from Function import ask_question, generate_pdf
 
-def get_drive_service():
-    creds = None
-    if os.path.exists(TOKEN_FILE):
-        with open(TOKEN_FILE, "rb") as f:
-            creds = pickle.load(f)
-    if not creds or not creds.valid:
-        flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
-        # Headless authorization for Streamlit Cloud
-        creds = flow.run_local_server(port=0, open_browser=False)
-        with open(TOKEN_FILE, "wb") as f:
-            pickle.dump(creds, f)
-    return build('drive', 'v3', credentials=creds)
 
-# ----------------------------
-# PDF generation
-# ----------------------------
-def generate_pdf(answers_dict, filename="questionnaire.pdf"):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, "Supplemental Questionnaire", ln=True, align="C")
-    pdf.set_font("Arial", '', 12)
-    for key, value in answers_dict.items():
-        if isinstance(value, list):
-            value = ", ".join(map(str, value))
-        pdf.multi_cell(0, 8, f"{key.replace('_',' ').title()}: {value}")
-        pdf.ln(1)
-    pdf.output(filename)
-    return filename
 
 st.title("VITA Supplemental Questionnaire")
 
@@ -54,22 +27,149 @@ from BasicInfo import answers
 from BasicInfo import Disclaimers, Income, RequiredDocuments,F1099R,SSA
 from BasicInfo import SchC, SchD, Deductions
 
-
-Disclaimers()
-RequiredDocuments()
+#Disclaimers()
+#RequiredDocuments()
 BasicInfo()
-HealthInsurance()
-CaResidency()
-MiscQuestions()
-with st.expander("Income", expanded=False):
-    Income()
-    F1099R()
-    SSA()
-    SchC()
-    SchD()
+#HealthInsurance()
+#CaResidency()
+#MiscQuestions()
+#
 
-with st.expander("Deductions & Credits", expanded=False):
-    Deductions()
+with st.expander("Income", expanded=True):
+    #Income()
+  #  F1099R()
+ #   SSA()
+    SchC()
+#    SchD()
+
+#with st.expander("Deductions & Credits", expanded=False):
+    #Deductions()
+
+
+
+
+def format_value(value, max_width=90):
+    if isinstance(value, datetime.date):
+        return value.strftime("%Y-%m-%d")
+
+    if isinstance(value, list):
+        value = ", ".join(str(v) for v in value)
+
+    if isinstance(value, dict):
+        value = "\n".join(f"{k}: {format_value(v)}" for k, v in value.items())
+
+    text = str(value)
+
+    wrapped = []
+    for line in text.split("\n"):
+        words = line.split(" ")
+        rebuilt = []
+
+        for word in words:
+            if len(word) > max_width:
+                rebuilt.append("\n".join(textwrap.wrap(word, max_width)))
+            else:
+                rebuilt.append(word)
+
+        wrapped.append(" ".join(rebuilt))
+
+    return "\n".join(wrapped)
+
+
+from fpdf import FPDF
+import datetime
+import textwrap
+
+
+def format_value(value, max_width=90):
+    if isinstance(value, datetime.date):
+        return value.strftime("%Y-%m-%d")
+
+    if isinstance(value, list):
+        value = ", ".join(str(v) for v in value)
+
+    if isinstance(value, dict):
+        value = " | ".join(f"{k}: {format_value(v)}" for k, v in value.items())
+
+    text = str(value)
+
+    wrapped = []
+    for line in text.split("\n"):
+        words = line.split(" ")
+        rebuilt = []
+
+        for word in words:
+            if len(word) > max_width:
+                rebuilt.append("\n".join(textwrap.wrap(word, max_width)))
+            else:
+                rebuilt.append(word)
+
+        wrapped.append(" ".join(rebuilt))
+
+    return "\n".join(wrapped)
+
+from fpdf import FPDF
+import datetime
+import textwrap
+
+
+
+
+from fpdf import FPDF
+import datetime
+import textwrap
+
+
+def safe_text(value, width=80):
+    text = str(value)
+
+    # break by lines first
+    lines = text.split("\n")
+    result = []
+
+    for line in lines:
+        words = line.split(" ")
+        rebuilt = []
+
+        for word in words:
+            # CRITICAL FIX: break unspaced long strings
+            if len(word) > width:
+                rebuilt.append("\n".join(textwrap.wrap(word, width)))
+            else:
+                rebuilt.append(word)
+
+        result.append(" ".join(rebuilt))
+
+    return "\n".join(result)
+
+from fpdf import FPDF
+import datetime
+
+
+from fpdf import FPDF
+import datetime
+
+
+def safe_one_line(value, max_len=120):
+    if isinstance(value, datetime.date):
+        value = value.strftime("%Y-%m-%d")
+
+    text = str(value)
+
+    if len(text) > max_len:
+        text = text[:max_len] + "..."
+
+    return text
+
+
+
+
+
+from fpdf import FPDF
+import datetime
+import textwrap
+
+
 
 
 def send_email(pdf_file):
@@ -78,7 +178,7 @@ def send_email(pdf_file):
 
     # Your Gmail account (or app password)
     EMAIL_ADDRESS = "lepealec518@gmail.com"
-    EMAIL_PASSWORD = "***"
+    EMAIL_PASSWORD = "jezv tutk apta lfko"
 
     msg = MIMEMultipart()
     msg["From"] = EMAIL_ADDRESS
@@ -98,6 +198,32 @@ def send_email(pdf_file):
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         server.send_message(msg)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # --- Streamlit UI ---
 if st.button("Generate PDF & Email"):
     pdf_file = generate_pdf(answers)
@@ -112,3 +238,4 @@ if st.button("Generate PDF & Email"):
 
 
         
+

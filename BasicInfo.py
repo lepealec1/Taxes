@@ -169,7 +169,7 @@ def HealthInsurance():
         selected = answers.get("1095-A_Warning", [])
         if any(option in selected for option in health_1095_a[1:]):
             st.warning("❌ Out of scope")
-        else:
+        elif any(option in selected for option in health_1095_a[1]):
             st.warning("✅ In scope")
                                 
 
@@ -295,7 +295,7 @@ def F1099R():
                 columns=False
             )
             if answers.get("code_7_no_ira") == "Yes":
-                st.success("✅In Scope")
+                st.success("✅ In Scope")
                 return
             else:
                 ask_question(
@@ -472,60 +472,50 @@ def SSA():
         for i in range(int(num_years)):
             st.markdown(f"### 📅 Prior Year #{i+1}")
             year_data = {}
-            year_data["tax_year"] = st.text_input(f"Tax Year (Year #{i+1})", key=f"tax_year_{i}")
-
+            year_data["tax_year"] = st.text_input(f"Tax Year (Year #{i+1})", key=f"SSA_Lump_Sum_year_{i}")
             year_data["filing_status"] = st.selectbox(
                 f"Filing Status for that year",
                 ["Single", "Married Filing Jointly", "Married Filing Separately", "Head of Household"],
-                key=f"filing_status_{i}"
+                key=f"SSA_Lump_Sum_status_{i}"
             )
-
             year_data["ssa_received"] = st.number_input(
                 f"Total Social Security received that year",
                 min_value=0.0,
                 step=100.0,
-                key=f"ssa_received_{i}"
+                key=f"SSA_Lump_Sum_total_received_{i}"
             )
-
             year_data["lump_sum_amount"] = st.number_input(
                 f"Portion of THIS year’s benefits for that year ($)",
                 min_value=0.0,
                 step=100.0,
-                key=f"lump_sum_{i}"
+                key=f"SSA_Lump_Sum_portio_{i}"
             )
-
             year_data["agi"] = st.number_input(
                 f"AGI for that year (Form 1040 Line 11)",
                 min_value=0.0,
                 step=100.0,
-                key=f"agi_{i}"
+                key=f"SSA_Lump_Sum_agi_{i}"
             )
-
             year_data["adjustments"] = st.number_input(
                 f"Adjustments/Exclusions (Form 1040 Line 10)",
                 min_value=0.0,
                 step=100.0,
-                key=f"adjustments_{i}"
+                key=f"SSA_Lump_Sum_adjustments_{i}"
             )
-
             year_data["tax_exempt_interest"] = st.number_input(
                 f"Tax-exempt interest (Form 1040 Line 2a)",
                 min_value=0.0,
                 step=100.0,
                 key=f"interest_{i}"
             )
-
             year_data["taxable_ssa"] = st.number_input(
                 f"Taxable Social Security (Form 1040 Line 6b)",
                 min_value=0.0,
                 step=100.0,
-                key=f"taxable_ssa_{i}"
+                key=f"SSA_Lump_Sum_taxable_ssa_{i}"
             )
-
-            answers["ssa_lump_sum_details"].append(year_data)
-
+        answers["ssa_lump_sum_details"].append(year_data)
         st.success("✔️ Lump sum Social Security details captured")
-
 
 import streamlit as st
 from Function import ask_question
@@ -563,80 +553,78 @@ def SchC():
                     year_data["business_type"] = st.radio(
                         "Business Description",
                         ["Taxi & limousine service (Uber / Lyft)", "Other"],
+                        index=None,
                         key=f"business_type_{i}"
                     )
                     if year_data["business_type"] == "Other":
-                        year_data["other_business"] = st.text_input("Describe your business:", key=f"other_business_{i}")
+                        year_data["other_business"] = st.text_input("Describe your business:", key=f"SCH_C_other_business_descr_{i}")
                     year_data["1099_nec_amounts"] = st.number_input(
                         "Number of 1099-NEC forms:",min_value=0,
                         step=1,
-                        key=f"1099_nec_{i}"
+                        key=f"SCH_C_1099_nec_{i}"
                     )
                     year_data["1099_k_amounts"] = st.number_input(
                         "Number of 1099-K forms:",min_value=0,
                         step=1,
-                        key=f"1099_k_{i}"
+                        key=f"SCH_C_1099_k_{i}"
                     )
                     year_data["1099_misc_amounts"] = st.number_input(
                         "Number of 1099-Misc forms:",min_value=0,
                         step=1,
-                        key=f"1099_misc_{i}"
+                        key=f"SCH_C_1099_misc_{i}"
                     )
                     year_data["other_cash_income"] = st.number_input(
                         "Other cash income ($)",step=50,
-                        key=f"cash_income_{i}"
+                        key=f"SCH_C_cash_income_{i}"
                     )
                     st.subheader("Business Expenses")            
-                    year_data["advertising"] = st.number_input("Advertising ($)", step=50, key=f"advertising_{i}")
+                    year_data["advertising"] = st.number_input("Advertising ($)", step=50, key=f"SCH_C_advertising_{i}")
                     year_data["contract_labor"] = None  # No input, out of scope
                     st.info("Contract Labor is out of scope.")
-                    year_data["commission_and_fees"] = st.number_input("Commission and Fees ($)", step=50, key=f"commission_and_fees_{i}")
+                    year_data["commission_and_fees"] = st.number_input("Commission and Fees ($)", step=50, key=f"SCH_C_commission_and_fees_{i}")
                     year_data["depletion"] = None
                     st.info("Depletion is out of scope.")
                     year_data["employee_benefits"] = None
                     st.info("Employee Benefits is out of scope.")
-                    year_data["health_insurance"] = st.number_input("Health Insurance ($)", step=50, key=f"health_insurance_{i}")
-                    year_data["insurance_other_than_health"] = st.number_input("Insurance (other than health) ($)", step=50, key=f"insurance_other_than_health_{i}")
+                    year_data["health_insurance"] = st.number_input("Health Insurance ($)", step=50, key=f"SCH_C_health_insurance_{i}")
+                    year_data["insurance_other_than_health"] = st.number_input("Insurance (other than health) ($)", step=50, key=f"SCH_C_insurance_other_than_health_{i}")
                     year_data["mortgage_interest"] = None
                     st.info("Mortgage Interest is out of scope.")
-                    year_data["legal_and_professional_services"] = st.number_input("Legal and Professional Services ($)", step=50, key=f"legal_and_professional_services_{i}")
-                    year_data["office_expenses"] = st.number_input("Office Expenses ($)", step=50, key=f"office_expenses_{i}")
+                    year_data["legal_and_professional_services"] = st.number_input("Legal and Professional Services ($)", step=50, key=f"SCH_C_legal_and_professional_services_{i}")
+                    year_data["office_expenses"] = st.number_input("Office Expenses ($)", step=50, key=f"SCH_C_office_expenses_{i}")
                     year_data["pension_and_profit_sharing"] = None
                     st.info("Pension and Profit Sharing is out of scope.")
-                    year_data["rent_or_lease_of_equipment"] = st.number_input("Rent or Lease of Equipment ($)", step=50, key=f"rent_or_lease_of_equipment_{i}")
-                    year_data["rent_or_lease_of_property"] = st.number_input("Rent or Lease of Property ($)", step=50, key=f"rent_or_lease_of_property_{i}")
-                    year_data["repairs_and_maintenance"] = st.number_input("Repairs and Maintenance ($)", step=50, key=f"repairs_and_maintenance_{i}")
-                    year_data["supplies"] = st.number_input("Supplies ($)", step=50, key=f"supplies_{i}")
-                    year_data["taxes_and_licenses"] = st.number_input("Taxes and Licenses ($)", step=50, key=f"taxes_and_licenses_{i}")
-                    year_data["travel"] = st.number_input("Travel ($)", step=50, key=f"travel_{i}")
+                    year_data["rent_or_lease_of_equipment"] = st.number_input("Rent or Lease of Equipment ($)", step=50, key=f"SCH_C_rent_or_lease_of_equipment_{i}")
+                    year_data["rent_or_lease_of_property"] = st.number_input("Rent or Lease of Property ($)", step=50, key=f"SCH_C_rent_or_lease_of_property_{i}")
+                    year_data["repairs_and_maintenance"] = st.number_input("Repairs and Maintenance ($)", step=50, key=f"SCH_C_repairs_and_maintenance_{i}")
+                    year_data["supplies"] = st.number_input("Supplies ($)", step=50, key=f"SCH_C_supplies_{i}")
+                    year_data["taxes_and_licenses"] = st.number_input("Taxes and Licenses ($)", step=50, key=f"tSCH_C_axes_and_licenses_{i}")
+                    year_data["travel"] = st.number_input("Travel ($)", step=50, key=f"SCH_C_travel_{i}")
                     year_data["meals_and_entertainment"] = None
                     st.info("Meals and Entertainment is out of scope.")            
-                    year_data["utilities"] = st.number_input("Utilities ($)", step=50, key=f"utilities_{i}")
-                    year_data["wages"] = st.number_input("Wages ($)", step=50, key=f"wages_{i}")
-                    year_data["other_expenses"] = st.number_input("Other Expenses ($)", step=50, key=f"other_expenses_{i}")
-
-                    
+                    year_data["utilities"] = st.number_input("Utilities ($)", step=50, key=f"SCH_C_utilities_{i}")
+                    year_data["wages"] = st.number_input("Wages ($)", step=50, key=f"SCH_C_wages_{i}")
+                    year_data["other_expenses"] = st.number_input("Other Expenses ($)", step=50, key=f"SCH_C_other_expenses_{i}")
                     # Car and truck expenses
                     st.subheader("Car and Truck Expenses")
                 ask_question(
                     year_data,
-                    key_name=f"vehicle_desc_{i}",
+                    key_name=f"SCH_C_vehicle_desc_{i}",
                     question="Description of Vehicle:",
                     input_type="text"
                 )
 
                 ask_question(
                     year_data,
-                    key_name=f"vehicle_date_{i}",
+                    key_name=f"SCH_C_vehicle_date_{i}",
                     question="Date vehicle placed in service:",
                     input_type="date"
                 )
 
-                year_data["miles"] = st.number_input("Bussiness Miles", step=50, key=f"Miles_{i}",help="Do not include commuting mileage.")
-
+                year_data["miles"] = st.number_input("Bussiness Miles", step=50, key=f"SCH_C_Miles_{i}",help="Do not include commuting mileage.")
                 ask_question(
                     year_data,
-                    key_name=f"vehicle_other_{i}",
+                    key_name=f"SCH_C_vehicle_other_{i}",
                     question="Do you or your spouse have another vehicle available for personal use?",
                     input_type="radio",
                     options=["Yes", "No"]
@@ -644,31 +632,31 @@ def SchC():
 
                 ask_question(
                     year_data,
-                    key_name=f"vehicle_off_duty_{i}",
+                    key_name=f"SCH_C_vehicle_off_duty_{i}",
                     question="Was this vehicle available for personal use during off-duty hours?",
                     input_type="radio",
                     options=["Yes", "No"]
                 )
 
                 ask_question(
-                    year_data,
-                    key_name=f"vehicle_evidence_{i}",
+                    year_data,  
+                    key_name=f"SCH_C_vehicle_evidence_{i}",
                     question="Do you have evidence to support your deduction?",
                     input_type="radio",
                     options=["Yes", "No"]
                 )
 
                 # Conditional question if evidence exists
-                if year_data.get(f"vehicle_evidence_{i}") == "Yes":
+                if year_data.get(f"SCH_C_vehicle_evidence_{i}") == "Yes":
                     ask_question(
                         year_data,
-                        key_name=f"vehicle_written_{i}",
+                        key_name=f"SCH_C_vehicle_written_{i}",
                         question="Is the evidence written?",
                         input_type="radio",
                         options=["Yes", "No"]
                     )
                                 # Append year/business data to answers
-                    answers["schedule_c_details"].append(year_data)
+                answers["schedule_c_details"].append(year_data)
 
 def SchD():
     global answers, yes_no, typical_basic_response
@@ -752,3 +740,5 @@ def Deductions():
                 question="How much did you spend on out of pocket clasroom expenses? ($)",
                 input_type="number",step=50
             )
+
+

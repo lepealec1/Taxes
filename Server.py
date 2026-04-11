@@ -1,10 +1,17 @@
-import streamlit as st
-from fpdf import FPDF
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
+from fpdf import FPDF
+import datetime
+import textwrap
+import streamlit as st
+from fpdf import FPDF
 from BasicInfo import BasicInfo, answers
+import os
+import pickle
+from Function import ask_question, generate_pdf
+
 
 st.title("VITA Supplemental Questionnaire")
 
@@ -33,37 +40,20 @@ with st.expander("Income", expanded=False):
 with st.expander("Deductions & Credits", expanded=False):
     Deductions()
 
-# --- Generate PDF ---
-def generate_pdf(answers_dict):
-    # Use the 'name' answer to create filename, fallback if missing
-    name = answers_dict.get("name", "questionnaire").replace(" ", "_")
-    filename = f"{name}.pdf"
-
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, "Supplemental Questionnaire", ln=True, align="C")
-    pdf.set_font("Arial", '', 12)
-
-    for key, value in answers_dict.items():
-        if isinstance(value, list):
-            value = ", ".join(map(str, value))
-        pdf.multi_cell(0, 8, f"{key.replace('_',' ').title()}: {value}")
-        pdf.ln(1)
-
-    pdf.output(filename)
-    return filename
 
 
 
-# --- Email PDF ---
+
+
+
+
 def send_email(pdf_file):
     # Generic email to send to
     TO_EMAIL = "lepealec518@gmail.com"  # replace with your generic email
 
     # Your Gmail account (or app password)
-    EMAIL_ADDRESS = st.secrets["email"]["user"]
-    EMAIL_PASSWORD = st.secrets["email"]["password"]
+    EMAIL_ADDRESS = "lepealec518@gmail.com"
+    EMAIL_PASSWORD = "jezv tutk apta lfko"
 
     msg = MIMEMultipart()
     msg["From"] = EMAIL_ADDRESS
@@ -83,6 +73,10 @@ def send_email(pdf_file):
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         server.send_message(msg)
 
+
+
+
+
 # --- Streamlit UI ---
 if st.button("Generate PDF & Email"):
     pdf_file = generate_pdf(answers)
@@ -95,7 +89,6 @@ if st.button("Generate PDF & Email"):
     except Exception as e:
         st.error(f"Failed to send email: {e}")
 
+
         
-
-
 

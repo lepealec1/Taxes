@@ -1,3 +1,36 @@
+
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+from fpdf import FPDF
+import datetime
+import textwrap
+import streamlit as st
+from fpdf import FPDF
+import os
+import pickle
+import smtplib
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+
+def safe_one_line(value, max_len=120):
+    """Force everything into a single safe row"""
+    if isinstance(value, datetime.date):
+        value = value.strftime("%Y-%m-%d")
+
+    text = str(value)
+
+    # HARD truncate (prevents FPDF crash)
+    if len(text) > max_len:
+        text = text[:max_len] + "..."
+
+    return text
+
+
+
 import streamlit as st
 yes_no=['Yes','No']
 def ask_question(answers, key_name, question, input_type="text", options=None, columns=True, help_text=None, allow_none=False):
@@ -130,183 +163,56 @@ def ask_question(
 
 
 
-
-
-
-
-
-
-
-
-
-def ask_question(
-    answers: dict,
-    key_name: str,
-    question: str,
-    input_type: str = "text",
-    options: list | None = None,
-    columns: bool = True,
-    help_text: str | None = None,
-    allow_none: bool = False,
-    multiple: bool = False,
-    step: float | int = 1,
-    min_value: float | int | None = 0,
-    max_value: float | int | None = None,
-    format_str: str | None = None,
-):
-    """
-    Robust Streamlit input helper with safe typing + session handling.
-    """
-
-    import streamlit as st
-
-    def _reset_if_type_mismatch(expected_types):
-        """Clear session state if stored value has wrong type."""
-        if key_name in st.session_state:
-            if not isinstance(st.session_state[key_name], expected_types):
-                del st.session_state[key_name]
-
-    value = None
-
-    # ---------- TEXT ----------
-    if input_type in ("text", "text_input"):
-        _reset_if_type_mismatch((str,))
-
-        if multiple:
-            raw = st.text_area(
-                f"{question} (one per line)",
-                key=key_name,
-                help=help_text
-            )
-            value = [v.strip() for v in raw.split("\n") if v.strip()]
-        else:
-            value = st.text_input(
-                question,
-                key=key_name,
-                help=help_text
-            )
-
-    # ---------- NUMBER ----------
-    elif input_type == "number":
-        if multiple:
-            _reset_if_type_mismatch((str,))
-
-            raw = st.text_area(
-                f"{question} (one per line)",
-                key=key_name,
-                help=help_text
-            )
-
-            cleaned = []
-            for v in raw.split("\n"):
-                v = v.strip()
-                if not v:
-                    continue
-                try:
-                    cleaned.append(float(v))
-                except ValueError:
-                    st.warning(f"Invalid number skipped: {v}")
-
-            value = cleaned
-
-        else:
-            # 🔥 AUTO MODE: detect int vs float
-            is_int_mode = all(
-                isinstance(x, int) or x is None
-                for x in (step, min_value, max_value)
-            )
-
-            if is_int_mode:
-                _reset_if_type_mismatch((int,))
-
-                min_v = int(min_value) if min_value is not None else 0
-                max_v = int(max_value) if max_value is not None else None
-                step_v = int(step)
-
-                value = st.number_input(
-                    question,
-                    key=key_name,
-                    min_value=min_v,
-                    max_value=max_v,
-                    step=step_v,
-                    value=min_v,
-                    format=format_str or "%d",
-                    help=help_text
-                )
-
-            else:
-                _reset_if_type_mismatch((int, float))
-
-                min_v = float(min_value) if min_value is not None else 0.0
-                max_v = float(max_value) if max_value is not None else None
-                step_v = float(step)
-
-                value = st.number_input(
-                    question,
-                    key=key_name,
-                    min_value=min_v,
-                    max_value=max_v,
-                    step=step_v,
-                    value=min_v,
-                    format=format_str or "%.2f",
-                    help=help_text
-                )
-
-    # ---------- RADIO ----------
-    elif input_type == "radio":
-        if not options:
-            raise ValueError("Radio input requires 'options'")
-
-        _reset_if_type_mismatch((str, type(None)))
-
-        opts = options.copy()
-
-        if allow_none:
-            opts = ["— Select —"] + opts
-
-        selected = st.radio(
-            question,
-            options=opts,
-            index=0,
-            key=key_name,
-            help=help_text,
-            horizontal=columns
-        )
-
-        value = None if allow_none and selected == "— Select —" else selected
-
-    # ---------- CHECKBOX ----------
-    elif input_type == "checkbox":
-        if not options:
-            raise ValueError("Checkbox input requires 'options'")
-
-        st.write(question)
-        if help_text:
-            st.caption(help_text)
-
-        selected = []
-
-        layout = st.columns(len(options)) if columns else [st] * len(options)
-
-        for col, option in zip(layout, options):
-            if col.checkbox(option, key=f"{key_name}_{option}"):
-                selected.append(option)
-
-        value = selected
-
-    # ---------- DATE ----------
-    elif input_type == "date":
-        _reset_if_type_mismatch((object,))  # date objects
-
-        value = st.date_input(
-            question,
-            key=key_name,
-            help=help_text
-        )
-
-    # ---------- INVALID ----------
-    else:
-        raise ValueError(f"Unsupported input_type: {input_type}")
-
-    answers[key_name] = value
+def clean_value(value):
+    if value is None or value == []:
+        return "Not Answered"
     return value
+
+
+def generate_pdf(answers_dict):
+
+    name = answers_dict.get("name", "questionnaire").replace(" ", "_")
+    filename = f"{name}.pdf"
+
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+
+    page_width = pdf.w - 2 * pdf.l_margin
+
+    label_width = 70
+    value_width = page_width - label_width
+
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(0, 10, "Supplemental Questionnaire", ln=True, align="C")
+    pdf.ln(5)
+
+    pdf.set_font("Arial", "", 11)
+
+    for key, value in answers_dict.items():
+
+        # -------------------------
+        # Schedule C / SSA expansion
+        # -------------------------
+        if (key == "schedule_c_details" or key == "ssa_lump_sum_details") and isinstance(value, list):
+
+            for i, row in enumerate(value):
+                for sub_key, sub_val in row.items():
+
+                    sub_val = clean_value(sub_val)
+
+                    pdf.cell(label_width, 6, f"{sub_key}_{i}:", border=0)
+                    pdf.cell(value_width, 6, safe_one_line(sub_val), border=0, ln=True)
+
+            continue
+
+        # -------------------------
+        # Normal fields
+        # -------------------------
+        value = clean_value(value)
+
+        pdf.cell(label_width, 6, f"{key.replace('_',' ').title()}:", border=0)
+        pdf.cell(value_width, 6, safe_one_line(value), border=0, ln=True)
+
+    pdf.output(filename)
+    return filename
