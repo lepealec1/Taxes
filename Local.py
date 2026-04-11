@@ -44,7 +44,7 @@ def generate_pdf(answers_dict, filename="questionnaire.pdf"):
     pdf.output(filename)
     return filename
 
-st.title("PDF Tax + Google Drive Upload")
+st.title("VITA TAX Questionnaire")
 
 from BasicInfo import BasicInfo
 from BasicInfo import HealthInsurance
@@ -52,7 +52,7 @@ from BasicInfo import CaResidency
 from BasicInfo import MiscQuestions
 from BasicInfo import answers
 from BasicInfo import Disclaimers, Income, RequiredDocuments,F1099R,SSA
-from BasicInfo import SchC, SchD
+from BasicInfo import SchC, SchD, Deductions
 
 
 Disclaimers()
@@ -61,15 +61,16 @@ BasicInfo()
 HealthInsurance()
 CaResidency()
 MiscQuestions()
-#with st.expander("Income", expanded=False):
- #   Income()
-  #  F1099R()
-   # SSA()
-    #SchC()
-#    SchD()
+with st.expander("Income", expanded=False):
+    Income()
+    F1099R()
+    SSA()
+    SchC()
+    SchD()
 
-with st.expander("Deductions & Credits", expanded=True):
-    SchD()    
+with st.expander("Deductions & Credits", expanded=False):
+    Deductions()
+
 
 def send_email(pdf_file):
     # Generic email to send to
@@ -77,7 +78,7 @@ def send_email(pdf_file):
 
     # Your Gmail account (or app password)
     EMAIL_ADDRESS = "lepealec518@gmail.com"
-    EMAIL_PASSWORD = "jezv tutk apta lfko"
+    EMAIL_PASSWORD = "***"
 
     msg = MIMEMultipart()
     msg["From"] = EMAIL_ADDRESS

@@ -1,4 +1,4 @@
-#✔️
+#✔️❌✅
 
 import streamlit as st
 from Function import ask_question
@@ -33,7 +33,7 @@ def BasicInfo():
     #(answers, key_name, question, input_type="text", options=None, columns=True)
     # Single-selection Filing Status
     current_tax_year=date.today().year-1
-    with st.expander("Basic Information ", expanded=True):
+    with st.expander("Basic Information ", expanded=False):
         ask_question(answers, "tax_year",
             "Select the Tax Year:",
             input_type="radio",
@@ -97,7 +97,7 @@ def BasicInfo():
                         options=yes_no
                     )
                     if answers.get('married_follow_up_questions')=="Yes":
-                        st.warning("✔️ You are considered unmarried and your filing status is head of houseshold.")
+                        st.warning("✅ You are considered unmarried and your filing status is head of houseshold.")
                         return
                     if answers.get('married_follow_up_questions')=="No":
                         st.warning("❌ You are considered married and your filing status is married filing seperately which is out of scope.")
@@ -121,10 +121,10 @@ def BasicInfo():
                             input_type="radio",
                 options=yes_no )
             if answers.get('MFS_HOH_S')=="Yes":
-                st.warning("✔️ Your filing status is head of houseshold.")
+                st.warning("✅ Your filing status is head of houseshold.")
                 return
             if answers.get('MFS_HOH_S')=="No":
-                st.warning("✔️ Your filing status is single.")
+                st.warning("✅ Your filing status is single.")
                 return
 
 def HealthInsurance():
@@ -155,12 +155,23 @@ def HealthInsurance():
                         options=["Medi-Cal", "Medicaid", "Medicare", "Employee Sponsored", "Other"],
                         columns=True)
         health_forms=answers.get("health_forms") or []
+        health_1095_a=[
+                            "Some people in my household are listed on my 1095-A but some members have their own health insurance",
+                            "The 1095-A lists someone not on your tax return",
+                            "A person on this tax return was enrolled in another taxpyers Marketplace coverage. (The person is listed on a Form 1095-A sent to a taxpayer not on this tax return.)",
+                            f"You got married during {answers.get('tax_year')}, were unmarried as of January 1st, {answers.get('tax_year')}, and want to do an alternative calculation for year of marriage.",
+                            "You or your spouse are self employed and want to deduct their health insurance premiums."]
         if  "1095-A" in health_forms:
-            ask_question(answers, "formAAAs", "WAAAhich form(s) do you have?", 
+            ask_question(answers, "1095-A_Warning", "Please check any that apply.", 
                         input_type="checkbox",
-                        options=["1095-A", "1095-B", "1095-C"],
-                        columns=True)
-
+                        options=health_1095_a
+                            ,columns=False,help_text="See Publication 974, 4012 H-14, or ask a VITA volunteer for more details.")
+        selected = answers.get("1095-A_Warning", [])
+        if any(option in selected for option in health_1095_a[1:]):
+            st.warning("❌ Out of scope")
+        else:
+            st.warning("✅ In scope")
+                                
 
 
 def CaResidency():
@@ -220,6 +231,41 @@ def MiscQuestions():
             columns=False,
             help_text="An IPPIN is a six-digit number the IRS issues to taxpayers to help prevent someone else from filing a fraudulent tax return using your Social Security number."
         )
+        ask_question(
+            answers,
+            "EstimatedTaxPayments",
+            f"Did you or your spouse make any estimated tax payments throughout {answers.get('tax_year')}?",
+            input_type="radio",
+            options=typical_basic_response,
+            columns=False,
+            help_text="Estimated tax payments are periodic payments you make to the government during the year on income that isn’t automatically taxed through withholding, such as self employment."
+        )
+        if answers.get("EstimatedTaxPayments") == "Yes":
+            tax_year = answers.get("tax_year")
+            quarters = [
+                (f"Q1 - April 15, {tax_year}", f"Q1_{tax_year}"),
+                (f"Q2- June 15, {tax_year}", f"Q2_{tax_year}"),
+                (f"Q3 - September 15, {tax_year}", f"Q3_{tax_year}"),
+                (f"Q4 - January 15, {tax_year+1}", f"Q4_{tax_year+1}")
+            ]
+            answers.setdefault("EstimatedTax", {})
+            for label, key in quarters:
+                st.write(f"### {label}")
+                col1, col2 = st.columns(2)
+                with col1:
+                    answers["EstimatedTax"][f"{key}_FD"] = st.number_input(
+                        f"Federal (FD) - {label}",
+                        min_value=0,
+                        step=50,
+                        key=f"fd_{key}"
+                    )
+                with col2:
+                    answers["EstimatedTax"][f"{key}_CA"] = st.number_input(
+                        f"California (CA) - {label}",
+                        min_value=0,
+                        step=50,
+                        key=f"ca_{key}"
+                    )        
         
 def Income():
     st.write("This section screens for uncommon, out-of-scope scenarios and helps prepare for the intake interview.")
@@ -237,159 +283,146 @@ def F1099R():
             options=typical_basic_response,
             columns=False
         )
-
         if answers.get("1099-R") != "Yes":
             return  # no 1099-R, skip section
-
-        # ----------------------------
-        # Q1: Code 7, IRA unchecked
-        # ----------------------------
-        ask_question(
-            answers,
-            "code_7_no_ira",
-            "Does your 1099-R have code 7 in box 7 AND the IRA/SEP/SIMPLE box is NOT checked?",
-            input_type="radio",
-            options=typical_basic_response,
-            columns=False
-        )
-
-        if answers.get("code_7_no_ira") == "Yes":
-            st.success("✔️ In Scope – Stop here")
-            return
-
-        # ----------------------------
-        # Q2: Code 1
-        # ----------------------------
-        ask_question(
-            answers,
-            "code_1",
-            "Does your 1099-R have code 1 in box 7?",
-            input_type="radio",
-            options=typical_basic_response,
-            columns=False
-        )
-
-        if answers.get("code_1") == "Yes":
+        if answers.get("1099-R") =="Yes":
             ask_question(
                 answers,
-                "code_1_use",
-                "What were the distribution funds used for?",
-                input_type="text"
-            )
-            st.success("✔️ In Scope – Stop here")
-            return
-
-        # ----------------------------
-        # Q3: Out-of-scope codes
-        # ----------------------------
-        ask_question(
-            answers,
-            "bad_codes",
-            "Does your 1099-R have any of these codes in box 7: 5, 8, 9, A, E, J, K, N, P, R, T, U?",
-            input_type="radio",
-            options=typical_basic_response,
-            columns=False
-        )
-
-        if answers.get("bad_codes") == "Yes":
-            st.error("❌ Out of Scope – Stop here")
-            return
-
-        # ----------------------------
-        # Q4: Code 2 or 7 + IRA + nondeductible
-        # ----------------------------
-        ask_question(
-            answers,
-            "code_2_or_7_ira_nondeduct",
-            "Does your 1099-R have code 2 or 7 in box 7 AND IRA/SEP/SIMPLE box checked AND you made nondeductible contributions?",
-            input_type="radio",
-            options=typical_basic_response,
-            columns=False
-        )
-
-        if answers.get("code_2_or_7_ira_nondeduct") == "Yes":
-            st.error("❌ Out of Scope – Stop here")
-            return
-
-        # ----------------------------
-        # Q5: Code 2
-        # ----------------------------
-        ask_question(
-            answers,
-            "code_2",
-            "Does your 1099-R have code 2 in box 7?",
-            input_type="radio",
-            options=typical_basic_response,
-            columns=False
-        )
-
-        if answers.get("code_2") == "Yes":
-
-            ask_question(
-                answers,
-                "code_2_ira_nondeduct",
-                "Is IRA/SEP/SIMPLE checked AND did you make nondeductible contributions?",
+                "code_7_no_ira",
+                "Do all your 1099-R forms have code 7 in box 7 AND the IRA/SEP/SIMPLE box is NOT checked?",
                 input_type="radio",
                 options=typical_basic_response,
                 columns=False
             )
-
-            if answers.get("code_2_ira_nondeduct") == "Yes":
-                st.error("❌ Out of Scope – Stop here")
+            if answers.get("code_7_no_ira") == "Yes":
+                st.success("✅In Scope")
+                return
             else:
-                st.success("✔️ In Scope – Stop here")
-            return
-
-        # ----------------------------
-        # Q6: Code 4 (Death)
-        # ----------------------------
-        ask_question(
-            answers,
-            "code_4",
-            "Does your 1099-R have code 4 in box 7?",
-            input_type="radio",
-            options=typical_basic_response,
-            columns=False
-        )
-
-        if answers.get("code_4") == "Yes":
-
-            ask_question(
-                answers,
-                "inherited_ira",
-                "Was it an inherited IRA?",
-                input_type="radio",
-                options=typical_basic_response,
-                columns=False
-            )
-
-            if answers.get("inherited_ira") == "Yes":
-
                 ask_question(
                     answers,
-                    "cost_basis",
-                    "Did it have a cost basis?",
+                    "1099_R_Conversions",
+                    "Do any of your 1099-R forms involve a traditional IRA to ROTH IRA conversion?",
                     input_type="radio",
                     options=typical_basic_response,
                     columns=False
                 )
+                if answers.get("1099_R_Conversions") == "Yes":
+                    st.warning("❌ Out of Scope")
+                    return
+                if answers.get("1099_R_Conversions") == "No":
+                    ask_question(
+                        answers,
+                        "code_1",
+                        "Do any of your 1099-R forms have code 1 in box 7?",
+                        input_type="radio",
+                        options=typical_basic_response,
+                        columns=False
+                    )
+                    if answers.get("code_1") == "Yes":
+                        ask_question(
+                            answers,
+                            "code_1_use",
+                            "What were the distribution funds used for?",
+                            input_type="text"
+                        )
+                        st.success("✅ In Scope")
+                        return
+                    if answers.get("code_1") == "No":
+                        ask_question(
+                            answers,
+                            "bad_codes",
+                            "Do any of your 1099-R forms have any of these codes in box 7: 5, 8, 9, A, E, J, K, N, P, R, T, U?",
+                            input_type="radio",
+                            options=typical_basic_response,
+                            columns=False
+                        )
+                        if answers.get("bad_codes") == "Yes":
+                            st.warning("❌ Out of Scope")
+                            return
 
-                if answers.get("cost_basis") == "Yes":
-                    st.error("❌ Out of Scope – Stop here")
-                else:
-                    st.success("✔️ In Scope – Stop here")
+                        # ----------------------------
+                        # Q4: Code 2 or 7 + IRA + nondeductible
+                        # ----------------------------
+                        ask_question(
+                            answers,
+                            "code_2_or_7_ira_nondeduct",
+                            "Do any of your 1099-R formsr have code 2 or 7 in box 7 AND IRA/SEP/SIMPLE box checked AND you made nondeductible contributions?",
+                            input_type="radio",
+                            options=typical_basic_response,
+                            columns=False
+                        )
 
-            else:
-                st.success("✔️ In Scope (Survivor benefits) – Stop here")
+                        if answers.get("code_2_or_7_ira_nondeduct") == "Yes":
+                            st.warning("❌ Out of Scope")
+                            return
+                        
+                        ask_question(
+                            answers,
+                            "code_2",
+                            "Do any of your 1099-R forms have code 2 in box 7?",
+                            input_type="radio",
+                            options=typical_basic_response,
+                            columns=False
+                        )
+                        if answers.get("code_2") == "Yes":
+                            ask_question(
+                                answers,
+                                "code_2_ira_nondeduct",
+                                "Is IRA/SEP/SIMPLE checked AND did you make nondeductible contributions?",
+                                input_type="radio",
+                                options=typical_basic_response,
+                                columns=False
+                            )
 
-            return
+                            if answers.get("code_2_ira_nondeduct") == "Yes":
+                                st.warning("❌ Out of Scope")
+                                return
+                            if answers.get("code_2_ira_nondeduct") == "No":
+                                st.warning("✅ In Scope")
+                                return
 
-        # ----------------------------
-        # Final Warning
-        # ----------------------------
-        st.warning(
-            "⚠️ If this distribution was a Traditional IRA → Roth IRA conversion, it is Out of Scope."
-        )
+                        # ----------------------------
+                        # Q6: Code 4 (Death)
+                        # ----------------------------
+                        ask_question(
+                            answers,
+                            "code_4",
+                            "Do any of your 1099-R forms have code 4 in box 7?",
+                            input_type="radio",
+                            options=typical_basic_response,
+                            columns=False
+                        )
+
+                        if answers.get("code_4") == "Yes":
+                            ask_question(
+                                answers,
+                                "inherited_ira",
+                                "Did they involve an inherited IRA?",
+                                input_type="radio",
+                                options=typical_basic_response,
+                                columns=False
+                            )
+                            if answers.get("inherited_ira") == "Yes":
+                                ask_question(
+                                    answers,
+                                    "cost_basis",
+                                    "For in the inhereited IRA, did it have a cost basis?",
+                                    input_type="radio",
+                                    options=typical_basic_response,
+                                    columns=False
+                                )
+
+                                if answers.get("cost_basis") == "Yes":
+                                    st.warning("❌ Out of Scope")
+                                    return
+                                if answers.get("cost_basis") == "No":
+                                    st.warning("✅ In Scope")
+                                    return;
+                            else:
+                                st.success("✅ In Scope (Survivor benefits)")
+                            return
+
+
 
 def SSA():
     with st.expander("Social Security: SSA-1099", expanded=False):        
@@ -639,7 +672,7 @@ def SchC():
 
 def SchD():
     global answers, yes_no, typical_basic_response
-    with st.expander("Sale of Capital Assets", expanded=True):
+    with st.expander("Sale of Capital Assets", expanded=False):
         ask_question(
             answers,
             key_name="sold_stocks_or_etfs",
@@ -690,3 +723,32 @@ def SchD():
                 st.warning("❌ Out of scope.")
                 return
         st.warning ("✔️ In scope.")
+
+
+def Deductions():
+    global answers, yes_no, typical_basic_response
+    with st.expander("Student Loan Interest: 1098-E", expanded=False):
+        ask_question(
+            answers,
+            key_name="student_loan_interest",
+            question="You or your spouse pay any student loan interest?",
+            input_type="radio",
+            options=typical_basic_response
+        )
+        if answers.get('student_loan_interest') == "Yes":
+             st.warning("✅ In scope, lease have your 1098-E forms handy.")
+    with st.expander("Qualified Educator", expanded=False):
+        ask_question(
+                answers,
+                key_name="qualified_educator",
+                question="You or your spouse a K-12 teacher, instructor, counselor, aide, or principal who worked at least 900 hours during the school year?",
+                input_type="radio",
+                options=typical_basic_response
+            )
+        if answers.get('qualified_educator') == "Yes":
+            ask_question(
+                answers,
+                key_name="educator_amount",
+                question="How much did you spend on out of pocket clasroom expenses? ($)",
+                input_type="number",step=50
+            )

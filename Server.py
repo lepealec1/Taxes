@@ -6,8 +6,32 @@ from email.mime.base import MIMEBase
 from email import encoders
 from BasicInfo import BasicInfo, answers
 
-# --- Collect answers ---
+
+
+from BasicInfo import BasicInfo
+from BasicInfo import HealthInsurance
+from BasicInfo import CaResidency
+from BasicInfo import MiscQuestions
+from BasicInfo import answers
+from BasicInfo import Disclaimers, Income, RequiredDocuments,F1099R,SSA
+from BasicInfo import SchC, SchD, Deductions
+
+
+Disclaimers()
+RequiredDocuments()
 BasicInfo()
+HealthInsurance()
+CaResidency()
+MiscQuestions()
+with st.expander("Income", expanded=False):
+    Income()
+    F1099R()
+    SSA()
+    SchC()
+    SchD()
+
+with st.expander("Deductions & Credits", expanded=False):
+    Deductions()
 
 # --- Generate PDF ---
 def generate_pdf(answers_dict):
