@@ -164,7 +164,7 @@ def ask_question(
 
 
 def clean_value(value):
-    if value is None or value == []:
+    if value is None or value == [] or value=='':
         return "Not Answered"
     return value
 
@@ -201,7 +201,7 @@ def generate_pdf(answers_dict):
 
                     sub_val = clean_value(sub_val)
 
-                    pdf.cell(label_width, 6, f"{sub_key}_{i}:", border=0)
+                    pdf.cell(label_width, 6, f"{sub_key}_{i+1}:", border=0)
                     pdf.cell(value_width, 6, safe_one_line(sub_val), border=0, ln=True)
 
             continue

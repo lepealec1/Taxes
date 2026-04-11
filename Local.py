@@ -38,7 +38,7 @@ BasicInfo()
 with st.expander("Income", expanded=True):
     #Income()
   #  F1099R()
- #   SSA()
+    SSA()
     SchC()
 #    SchD()
 
