@@ -248,8 +248,6 @@ def send_email(pdf_file=None):
 import time
 import streamlit as st
 
-COOLDOWN = 10 * 60  # 10 minutes
-
 if "last_submit_time" not in st.session_state:
     st.session_state.last_submit_time = 0
 
@@ -258,7 +256,6 @@ import random
 def generate_captcha():
     a = random.randint(1, 49)
     b = random.randint(1, 49)
-
     question = f"{a} + {b}"
     answer = str(a + b)
     st.write(answer)
@@ -275,11 +272,6 @@ user_captcha = st.text_input(
     f"🔒 What is {st.session_state.captcha_question}?"
 )
 def handle_submit():
-    now = time.time()
-
-    if now - st.session_state.last_submit_time < COOLDOWN:
-        return
-
     # CAPTCHA check
     if user_captcha.strip() != st.session_state.captcha_answer:
         st.error("❌ Incorrect answer. Try again.")
@@ -289,7 +281,6 @@ def handle_submit():
 
     pdf_file = generate_pdf(answers)
     st.success(f"PDF generated: {pdf_file}")
-
     try:
         send_email(pdf_file)
         st.success("PDF sent successfully!")
@@ -310,4 +301,3 @@ st.button(
     "Generate PDF & Email (One Email Per Session)",
     on_click=handle_submit
 )
-
