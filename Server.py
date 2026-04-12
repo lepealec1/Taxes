@@ -256,8 +256,8 @@ if "last_submit_time" not in st.session_state:
 import random
 
 def generate_captcha():
-    a = random.randint(0, 49)
-    b = random.randint(0, 49)
+    a = random.randint(1, 49)
+    b = random.randint(1, 49)
 
     question = f"{a} + {b}"
     answer = str(a + b)
@@ -303,7 +303,7 @@ def handle_submit():
     except Exception as e:
         st.error(f"Failed to send email: {e}")
 
-        
+
 
 # --- Button ---
 st.button(
