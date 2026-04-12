@@ -142,21 +142,26 @@ def BasicInfo():
                 st.warning("✅ Your filing status is single.")
                 return
 
-standard_mileage_rates = {
-    2021: 0.56,
-    2022: 0.585,
-    2023: 0.655,
-    2024: 0.67,
-    2025: 0.70,
-    2026: 0.725
-}
+standard_mileage_rate=0
 
-# Example: get the rate for a specific year
-tax_year = answers.get("tax_year")
-st.write(tax_year)
-standard_mileage_rate = standard_mileage_rates.get(tax_year)
-st.write(standard_mileage_rate)
+def mileage():
+    global answers, standard_mileage_rate
+    standard_mileage_rates = {
+        2021: 0.56,
+        2022: 0.585,
+        2023: 0.655,
+        2024: 0.67,
+        2025: 0.70,
+        2026: 0.725
+    }
 
+    # Example: get the rate for a specific year
+    tax_year = answers.get("tax_year")
+    st.write(tax_year)
+    standard_mileage_rate = standard_mileage_rates.get(tax_year)
+    st.write(standard_mileage_rate)
+
+mileage()
 
 def HealthInsurance():
     global answers
