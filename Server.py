@@ -310,4 +310,3 @@ if st.button("Generate PDF & Email"):
 
 st.warning("One submit per correct captcha")
 st.metric("📧 Emails Sent Successfully:", st.session_state.email_count)
-st.warning("📧 Emails Sent Successfully:", st.session_state.email_count)
