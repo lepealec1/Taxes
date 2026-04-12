@@ -302,3 +302,12 @@ def handle_submit():
 
     except Exception as e:
         st.error(f"Failed to send email: {e}")
+
+        
+
+# --- Button ---
+st.button(
+    "Generate PDF & Email (One Email Per Session)",
+    on_click=handle_submit
+)
+
