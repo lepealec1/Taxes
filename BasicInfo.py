@@ -142,6 +142,21 @@ def BasicInfo():
                 st.warning("✅ Your filing status is single.")
                 return
 
+standard_mileage_rates = {
+    2021: 0.56,
+    2022: 0.585,
+    2023: 0.655,
+    2024: 0.67,
+    2025: 0.70,
+    2026: 0.725
+}
+
+# Example: get the rate for a specific year
+tax_year = answers.get('tax_year')
+standard_mileage_rate = standard_mileage_rates.get(tax_year)
+
+
+
 def HealthInsurance():
     global answers
     with st.expander("Health Insurance", expanded=False):
@@ -677,7 +692,7 @@ def SchC():
         if answers.get("has_self_employent") != "Yes":
             return
         st.warning("⚠️ Businesses with asset purchases over $2,500 or net losses are out of scope.")
-        st.warning(f"⚠️ You not enter actual car expenses such as gas, tires, and maintanance, you may, however take the standard mileage rate at $0.70 per mile.")
+        st.warning(f"⚠️ You not enter actual car expenses such as gas, tires, and maintanance, you may, however take the standard mileage rate at ${standard_mileage_rate} per mile.")
         
         num_years = st.number_input(
             "How many self-employment businesses?",
@@ -709,10 +724,10 @@ def SchC():
                     key=f"SCH_C_other_business_{i}"
                 )
 
-            year_data["1099_nec_amounts"] = st.number_input("1099-NEC", min_value=0, step=1, key=f"nec_{i}")
-            year_data["1099_k_amounts"] = st.number_input("1099-K", min_value=0, step=1, key=f"k_{i}")
-            year_data["1099_misc_amounts"] = st.number_input("1099-MISC", min_value=0, step=1, key=f"misc_{i}")
-            year_data["other_cash_income"] = st.number_input("Other Cash Income", step=50, key=f"cash_{i}")
+            year_data["1099_nec_amounts"] = st.number_input("Number of 1099-NEC Forms", min_value=0, step=1, key=f"nec_{i}")
+            year_data["1099_k_amounts"] = st.number_input("Number of 1099-K Forms", min_value=0, step=1, key=f"k_{i}")
+            year_data["1099_misc_amounts"] = st.number_input("Number of 1099-MISC Forms", min_value=0, step=1, key=f"misc_{i}")
+            year_data["other_cash_income"] = st.number_input("Other Cash Income ($)", step=50, key=f"cash_{i}")
 
             # ---------------- EXPENSES ----------------
             st.subheader("Business Expenses")
