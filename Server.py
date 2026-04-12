@@ -262,8 +262,9 @@ def generate_captcha():
     question = f"{a} + {b}"
     answer = str(a + b)
     st.write(answer)
-
     return question, answer
+
+
 if "captcha_question" not in st.session_state:
     q, a = generate_captcha()
     st.session_state.captcha_question = q
@@ -309,7 +310,7 @@ def handle_submit():
 
 # --- Button ---
 st.button(
-    "Generate PDF & Email",
+    "Generate PDF & Email (One Email Per Session)",
     on_click=handle_submit
 )
 
