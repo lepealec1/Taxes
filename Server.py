@@ -224,7 +224,8 @@ uploaded_file = st.file_uploader("Upload a document")
 def send_email(pdf_file=None):
     global uploaded_file
     TO_EMAIL = "lepealec518@gmail.com"
-
+    EMAIL_ADDRESS = st.secrets["EMAIL_ADDRESS"]
+    EMAIL_PASSWORD = st.secrets["EMAIL_PASSWORD"]
     msg = EmailMessage()
     msg["From"] = EMAIL_ADDRESS
     msg["To"] = TO_EMAIL
