@@ -1,4 +1,11 @@
 # C:\Users\alepe\AppData\Local\Programs\Python\Python313\Scripts\streamlit.exe run c:\repos\Taxes\Local.py
+def handle_submit():
+    if st.session_state.submit_count >= 3:
+        st.stop()  # hard stop execution
+
+    st.session_state.submit_count += 1
+    st.success(f"Submitted! ({st.session_state.submit_count}/3)")
+    
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
