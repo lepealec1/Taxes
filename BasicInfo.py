@@ -679,7 +679,7 @@ def OtherIncome():
 
     
 def SchC():
-    global answers, yes_no, pronouns, pronouns2
+    global answers, yes_no, pronouns, pronouns2, standard_mileage_rate
     with st.expander("Self Employment: Schedule C", expanded=False):
         ask_question(
             answers,
