@@ -1457,3 +1457,12 @@ def RefundAndPayment():
         )  
         if answers.get('payment_method') == 'Direct Debit (Bank)' or  answers.get('refund_method') == "Direct Deposit (Bank)":
             st.warning("🔵 Please have bank information ready for the volunteer.")
+
+def FinalDisclaimer():
+    with st.expander("Final Disclaimer", expanded=False):
+        st.write(f"⚠️ {Pronouns} are ultimately responsible for {pronouns} tax return.")
+        st.write(f"VITA volunteers will prepare the return based on the information {pronouns} provide.")
+        st.write("Please ensure all information provided is accurate and complete.")
+        st.write(f"{Pronouns} are responsible for reviewing the completed return before signing and e-filing.")
+        st.write("VITA volunteers cannot provide legal or tax advice beyond the scope of the program.")
+        st.write("By submitting, you confirm that the information provided is true and complete to the best of your knowledge.")

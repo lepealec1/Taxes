@@ -29,7 +29,7 @@ from BasicInfo import CaResidency
 from BasicInfo import MiscQuestions
 from BasicInfo import answers
 from BasicInfo import Disclaimers, Income, RequiredDocuments,F1099R,SSA, OtherIncome
-from BasicInfo import SchC, SchD, Deductions, CDCC, EducationCredits, RefundAndPayment
+from BasicInfo import SchC, SchD, Deductions, CDCC, EducationCredits, RefundAndPayment, FinalDisclaimer
 
 Disclaimers()
 RequiredDocuments()
@@ -55,7 +55,7 @@ with st.expander("Deductions & Credits", expanded=False):
 
 
 RefundAndPayment()
-
+FinalDisclaimer()
 
 
 
