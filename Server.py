@@ -267,7 +267,7 @@ if "captcha_question" not in st.session_state:
 # CAPTCHA input
 # -----------------------
 user_captcha = st.text_input(
-    f"🔒 CAPTCHA: what is {st.session_state.captcha_question}?"
+    f"🔒 CAPTCHA: What is {st.session_state.captcha_question}?"
 )
 
 if "email_count" not in st.session_state:

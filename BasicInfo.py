@@ -177,7 +177,7 @@ def HealthInsurance():
                             f"The 1095-A lists someone not on {pronouns} tax return",
                             "A person on this tax return was enrolled in another taxpyers Marketplace coverage. (The person is listed on a Form 1095-A sent to a taxpayer not on this tax return.)",
                             f"You got married during {answers.get('tax_year')}, were unmarried as of January 1st, {answers.get('tax_year')}, and want to do an alternative calculation for year of marriage.",
-                            f"{pronouns} are self employed and want to deduct their health insurance premiums."]
+                            f"{Pronouns} are self employed and want to deduct their health insurance premiums."]
         if  "1095-A" in health_forms:
             ask_question(answers, "1095-A_Warning", "Please check any that apply.", 
                         input_type="checkbox",
