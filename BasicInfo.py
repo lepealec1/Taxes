@@ -26,16 +26,16 @@ def RequiredDocuments():
         st.write("Before you start, please gather the following documents to complete this questionnaire accurately:")
         st.write("- **Photo ID** (Driver's license, state ID, or passport) for you and your spouse.")
         st.write("- **Social Security Card** or ITIN documentation for yourself, your spouse, and dependents")
+        st.warning("⚠️ Physical **social security cards** and **identification cards** must be present.")
+        st.warning("⚠️ The **only exception** to not having phyiscal cards is if you have been at **this** VITA site in previous years.")
         st.write("- **Income Documents** (W-2s, 1099s, unemployment forms, etc.)")
         st.write("- **Deduction & Credit Documentation** (receipts for charitable donations, education expenses, medical expenses, child care expenses, etc.)")
         st.write("- **Health Insurance Information** (Form 1095-A, 1095-B, or 1095-C)")
         st.write("- **Previous Year Tax Return** (optional, but helpful for reference)")
-        st.write("There is an 'Upload' documents feature at the bottom of this questionnaire as well.")
-        st.write("Having these documents ready will help you complete the questionnaire faster and ensure accurate reporting.")
-        st.warning("⚠️ Physical **social security cards** and **identification cards** must be present.")
-        st.warning("⚠️ The **only exception** to not having phyiscal cards is if you have been at **this** VITA site in previous years.")
-
+        st.write("- Having these documents ready will help you complete the questionnaire faster and ensure accurate reporting.")
+        st.write("Note: There is an 'Upload' documents feature at the bottom of this questionnaire as well.")
         
+
 def BasicInfo():
     global answers, pronouns, pronouns2
     # Dictionary to store answers
