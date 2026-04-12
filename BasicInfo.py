@@ -691,7 +691,7 @@ def SchC():
         if answers.get("has_self_employent") != "Yes":
             return
         st.warning("⚠️ Businesses with asset purchases over $2,500 or net losses are out of scope.")
-        st.warning(f"⚠️ You not enter actual car expenses such as gas, tires, and maintanance, you may, however take the standard mileage rate at ${standard_mileage_rate} per mile.")
+        st.warning(f"⚠️ You not enter actual car expenses such as gas, tires, and maintanance, you may, however take the standard mileage rate at ${standard_mileage_rate:.2f} per mile.")
         
         num_years = st.number_input(
             "How many self-employment businesses?",
