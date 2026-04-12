@@ -255,8 +255,8 @@ import random
 # -----------------------
 if "captcha_question" not in st.session_state:
     def generate_captcha():
-        a = random.randint(1, 49)
-        b = random.randint(1, 49)
+        a = random.randint(1, 10)
+        b = random.randint(1, 10)
         return f"{a} + {b}", str(a + b)
 
     q, a = generate_captcha()
@@ -268,7 +268,7 @@ if "captcha_question" not in st.session_state:
 # CAPTCHA input
 # -----------------------
 user_captcha = st.text_input(
-    f"🔒 What is {st.session_state.captcha_question}?"
+    f"🔒 CAPTCHA: what is {st.session_state.captcha_question}?"
 )
 
 if "email_count" not in st.session_state:
@@ -307,6 +307,7 @@ def handle_submit():
 if st.button("Generate PDF & Email"):
     handle_submit()
 
+st.warning("The button will also send attachments if any are included.")
+st.warning("One submission per correct CAPTCHA.")
 
-st.warning("One submit per correct captcha")
 st.metric("📧 Emails Sent Successfully:", st.session_state.email_count)
