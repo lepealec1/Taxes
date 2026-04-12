@@ -169,7 +169,7 @@ def HealthInsurance():
         # Coverage type with multiple selection
             ask_question(answers, "coverage_type", "Type of Health Care Coverage",
                         input_type="checkbox",
-                        options=["Medi-Cal", "Medicaid", "Medicare", "Employee Sponsored", "Other"],
+                        options=["Marketplace","Medi-Cal", "Medicaid", "Medicare", "Employee Sponsored", "Other"],
                         columns=True)
         health_forms=answers.get("health_forms") or []
         health_1095_a=[
@@ -396,19 +396,31 @@ def Income():
             ask_question(
                 answers,
                 "Screening_1099-C",
-                f"Do all the following apply? \n\n• Cancellation of debt included cancellation of debt included nonbusiness credit card debt cancellation including interest in box 3 when {pronouns} are solvent before the cancellation \n\n• Discharge of qualified principal residence indebtedness \n\n• Cancellation of debt included discharge of certain student loan debt in 2021 through 2025 \n\n \n\n• Cancellation of debt does not include an amount for interest ",
+                f"Do all the following apply? \n\n• Cancellation of debt included cancellation of debt included nonbusiness credit card debt cancellation including interest in box 3 when {pronouns} are solvent before the cancellation \n\n• Discharge of qualified principal residence indebtedness \n\n• Cancellation of debt included discharge of certain student loan debt in 2021 through 2025",
                     input_type="radio",
                     options=typical_basic_response
                     )
-        if answers.get("Screening_1099-C") == "Yes":
-            st.warning("❌ Out of Scope")
         if answers.get("Screening_1099-C") == "No":
-                    ask_question(
-                        answers,
-                        "Number_of_1099-C",
-                f"How many 1099-C forms do {pronouns} have? ",
-                input_type="number",step=1
-                            )
+            st.warning("❌ Out of Scope")
+            return
+        if answers.get("Screening_1099-C") == "Yes":
+            ask_question(  
+                answers,
+                "Screening_1099-C_2",
+                f"Does the cancellation of debt does include an amount for interest?",
+                    input_type="radio",
+                    options=typical_basic_response
+                    )
+            if answers.get("Screening_1099-C_2") == "Yes":
+                st.warning("❌ Out of Scope")
+                return
+            if answers.get("Screening_1099-C_2") == "No":
+                        ask_question(
+                            answers,
+                            "Number_of_1099-C",
+                    f"How many 1099-C forms do {pronouns} have? ",
+                    input_type="number",step=1
+                                )
 
 
 def F1099R():
