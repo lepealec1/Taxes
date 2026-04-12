@@ -143,7 +143,7 @@ def BasicInfo():
                 return
 
 standard_mileage_rate=0
-
+st.write(standard_mileage_rate)
 def mileage():
     global answers, standard_mileage_rate
     standard_mileage_rates = {
