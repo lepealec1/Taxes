@@ -396,7 +396,7 @@ def Income():
             ask_question(
                 answers,
                 "Screening_1099-C",
-                f"Do all the following apply? \n\n• Cancellation of debt included cancellation of debt included nonbusiness credit card debt cancellation including interest in box 3 when {pronouns} are solvent before the cancellation \n\n• Discharge of qualified principal residence indebtedness \n\n• Cancellation of debt included discharge of certain student loan debt in 2021 through 2025",
+                f"Do all the following apply? \n\n• Cancellation of debt included cancellation of debt included nonbusiness (no LLC's) credit card debt cancellation including interest in box 3 when {pronouns} are solvent before the cancellation \n\n• Discharge of qualified principal residence indebtedness \n\n• Cancellation of debt included discharge of certain student loan debt in 2021 through 2025",
                     input_type="radio",
                     options=typical_basic_response
                     )
