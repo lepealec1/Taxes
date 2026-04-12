@@ -1,3 +1,17 @@
+if st.session_state.step == "success":
+    st.success("✔ Email sent successfully!")
+    st.toast("Your PDF has been delivered 📧", icon="✅")
+    st.balloons()
+
+    if st.button("Send another PDF"):
+        st.session_state.step = "form"
+        st.rerun()
+
+    st.stop()
+    
+if "step" not in st.session_state:
+    st.session_state.step = "form"  # form | success
+    
 # C:\Users\alepe\AppData\Local\Programs\Python\Python313\Scripts\streamlit.exe run c:\repos\Taxes\Local.py
 
 import smtplib
