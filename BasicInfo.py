@@ -677,8 +677,6 @@ def SchC():
     }
     tax_year = int(answers.get("tax_year"))
     standard_mileage_rate = standard_mileage_rates.get(tax_year)
-    st.write(tax_year)
-    st.write(standard_mileage_rate)
     with st.expander("Self Employment: Schedule C", expanded=False):
         ask_question(
             answers,
