@@ -281,7 +281,8 @@ user_captcha = st.text_input(
     f"🔒 What is {st.session_state.captcha_question}?"
 )
 
-
+if "email_count" not in st.session_state:
+    st.session_state.email_count = 0
 # -----------------------
 # Submit logic
 # -----------------------
@@ -294,7 +295,7 @@ def handle_submit():
 
     try:
         send_email(pdf_file)
-
+        st.session_state.email_count += 1
         # 🔥 set success step
         st.session_state.step = "success"
 
@@ -313,10 +314,10 @@ def handle_submit():
 # -----------------------
 # Button
 # -----------------------
-if st.button("Generate PDF & Email (One Email Per Session)"):
+if st.button("Generate PDF & Email"):
     handle_submit()
 
 
 st.warning("One submit per correct captcha")
-
-
+st.metric("📧 Emails Sent Successfully:", st.session_state.email_count)
+st.warning("📧 Emails Sent Successfully:", st.session_state.email_count)
