@@ -24,26 +24,33 @@ from BasicInfo import HealthInsurance
 from BasicInfo import CaResidency
 from BasicInfo import MiscQuestions
 from BasicInfo import answers
-from BasicInfo import Disclaimers, Income, RequiredDocuments,F1099R,SSA
-from BasicInfo import SchC, SchD, Deductions
+from BasicInfo import Disclaimers, Income, RequiredDocuments,F1099R,SSA, OtherIncome
+from BasicInfo import SchC, SchD, Deductions, CDCC, EducationCredits, RefundAndPayment
 
-#Disclaimers()
-#RequiredDocuments()
+Disclaimers()
+RequiredDocuments()
 BasicInfo()
-#HealthInsurance()
-#CaResidency()
-#MiscQuestions()
-#
+HealthInsurance()
+CaResidency()
+MiscQuestions()
 
-with st.expander("Income", expanded=True):
-    #Income()
-  #  F1099R()
+
+with st.expander("Income", expanded=False):
+    Income()
+    F1099R()
     SSA()
     SchC()
-#    SchD()
+    SchD()
+    OtherIncome()
 
-#with st.expander("Deductions & Credits", expanded=False):
-    #Deductions()
+
+with st.expander("Deductions & Credits", expanded=False):
+    Deductions()
+    CDCC()
+    EducationCredits()
+
+
+RefundAndPayment()
 
 
 
@@ -176,7 +183,6 @@ def send_email(pdf_file):
     # Generic email to send to
     TO_EMAIL = "lepealec518@gmail.com"  # replace with your generic email
 
-    # Your Gmail account (or app password)
     EMAIL_ADDRESS = "lepealec518@gmail.com"
     EMAIL_PASSWORD = "jezv tutk apta lfko"
 
@@ -200,6 +206,9 @@ def send_email(pdf_file):
 
 
 
+### Bank info
+### CDCC
+# 1098T
 
 
 
@@ -238,4 +247,41 @@ if st.button("Generate PDF & Email"):
 
 
         
+
+import streamlit as st
+import smtplib
+from email.message import EmailMessage
+
+
+
+
+
+if st.button("Send Email"):
+        try:
+            # Create email
+            msg = EmailMessage()
+            msg["Subject"] = "Tax"
+            msg["From"] = "lepealec518@gmail.com"
+            msg["To"] = "lepealec518@gmail.com"
+            body="Document"
+            msg.set_content(body)
+
+            # Attach file
+            file_data = uploaded_file.read()
+            msg.add_attachment(
+                file_data,
+                maintype="application",
+                subtype="octet-stream",
+                filename=uploaded_file.name
+            )
+
+            # Send via Gmail SMTP
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+                smtp.login("your_email@gmail.com", "your_app_password")
+                smtp.send_message(msg)
+
+            st.success("Email sent successfully!")
+
+        except Exception as e:
+            st.error(f"Error: {e}")
 
