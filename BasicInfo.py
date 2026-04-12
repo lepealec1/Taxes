@@ -16,21 +16,26 @@ def Disclaimers():
     with st.expander("Disclaimer", expanded=False):
         st.write("This questionnaire is intended to augment the VITA interview process, not replace it.")
         st.write("It will ask you basic questions about deductions, income, credits, and your personal tax situation.")
-        st.write("It also screens for out-of-scope scenarios for VITA services.")
+        st.write("It also screens for certain out-of-scope scenarios for VITA services.")
         st.write("All information you provide is **confidential** and will only be used for preparing your tax questionnaire.")
+        st.write("It will not ask you for SSNs or EINs but please have those handy for the volunteer.")
         st.write("Please answer questions as accurately as possible.")
 
 def RequiredDocuments():
     with st.expander("Required Documents", expanded=False):
         st.write("Before you start, please gather the following documents to complete this questionnaire accurately:")
-        st.write("- **Photo ID** (Driver's license, state ID, or passport)")
-        st.write("- **Social Security Card** or ITIN documentation for yourself and dependents")
+        st.write("- **Photo ID** (Driver's license, state ID, or passport) for you and your spouse.")
+        st.write("- **Social Security Card** or ITIN documentation for yourself, your spouse, and dependents")
         st.write("- **Income Documents** (W-2s, 1099s, unemployment forms, etc.)")
         st.write("- **Deduction & Credit Documentation** (receipts for charitable donations, education expenses, medical expenses, child care expenses, etc.)")
         st.write("- **Health Insurance Information** (Form 1095-A, 1095-B, or 1095-C)")
         st.write("- **Previous Year Tax Return** (optional, but helpful for reference)")
+        st.write("There is an 'Upload' documents feature at the bottom of this questionnaire as well.")
         st.write("Having these documents ready will help you complete the questionnaire faster and ensure accurate reporting.")
+        st.warning("⚠️ Physical **social security cards** and **identification cards** must be present.")
+        st.warning("⚠️ The **only exception** to not having phyiscal cards is if you have been at **this** VITA site in previous years.")
 
+        
 def BasicInfo():
     global answers, pronouns, pronouns2
     # Dictionary to store answers
