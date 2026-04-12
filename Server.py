@@ -183,43 +183,12 @@ def safe_one_line(value, max_len=120):
 
 
 
-
-
-if st.button("Send Email"):
-        try:
-            # Create email
-            msg = EmailMessage()
-            msg["Subject"] = "Tax"
-            msg["From"] = "lepealec518@gmail.com"
-            msg["To"] = "lepealec518@gmail.com"
-            body="Document"
-            msg.set_content(body)
-
-            # Attach file
-            file_data = uploaded_file.read()
-            msg.add_attachment(
-                file_data,
-                maintype="application",
-                subtype="octet-stream",
-                filename=uploaded_file.name
-            )
-
-            # Send via Gmail SMTP
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-                smtp.login("your_email@gmail.com", "your_app_password")
-                smtp.send_message(msg)
-
-            st.success("Email sent successfully!")
-
-        except Exception as e:
-            st.error(f"Error: {e}")
-
 import streamlit as st
 import smtplib
 from email.message import EmailMessage
 import os
 
-uploaded_file = st.file_uploader("Upload a document")
+uploaded_file = st.file_uploader("Upload a document (optional)")
 
 def send_email(pdf_file=None):
     global uploaded_file
