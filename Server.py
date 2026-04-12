@@ -172,57 +172,6 @@ def safe_one_line(value, max_len=120):
 
 
 
-from fpdf import FPDF
-import datetime
-import textwrap
-
-
-
-
-def send_email(pdf_file):
-    # Generic email to send to
-    TO_EMAIL = "lepealec518@gmail.com"  # replace with your generic email
-
-    EMAIL_ADDRESS = "lepealec518@gmail.com"
-    EMAIL_PASSWORD = "jezv tutk apta lfko"
-
-    msg = MIMEMultipart()
-    msg["From"] = EMAIL_ADDRESS
-    msg["To"] = TO_EMAIL
-    msg["Subject"] = answers['name']+"Tax Questionnaire PDF"
-
-    # Attach the PDF
-    with open(pdf_file, "rb") as f:
-        part = MIMEBase("application", "octet-stream")
-        part.set_payload(f.read())
-    encoders.encode_base64(part)
-    part.add_header("Content-Disposition", f"attachment; filename={pdf_file}")
-    msg.attach(part)
-
-    # Send email
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        server.send_message(msg)
-
-
-
-### Bank info
-### CDCC
-# 1098T
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -293,6 +242,7 @@ import os
 uploaded_file = st.file_uploader("Upload a document")
 
 def send_email(pdf_file=None):
+    global uploaded_file
     TO_EMAIL = "lepealec518@gmail.com"
 
     msg = EmailMessage()
