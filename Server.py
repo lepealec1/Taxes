@@ -261,6 +261,7 @@ def generate_captcha():
 
     question = f"{a} + {b}"
     answer = str(a + b)
+    st.write(answer)
 
     return question, answer
 if "captcha_question" not in st.session_state:
@@ -304,17 +305,11 @@ def handle_submit():
     except Exception as e:
         st.error(f"Failed to send email: {e}")
 
-# --- Cooldown Logic ---
-now = time.time()
-time_passed = now - st.session_state.last_submit_time
-time_left = int(COOLDOWN - time_passed)
 
-is_disabled = time_left > 0
 
 # --- Button ---
 st.button(
     "Generate PDF & Email",
-    on_click=handle_submit,
-    disabled=is_disabled
+    on_click=handle_submit
 )
 
