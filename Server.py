@@ -247,57 +247,62 @@ def send_email(pdf_file=None):
 # -----------------------
 import time
 import streamlit as st
-
-if "last_submit_time" not in st.session_state:
-    st.session_state.last_submit_time = 0
-
 import random
 
-def generate_captcha():
-    a = random.randint(1, 49)
-    b = random.randint(1, 49)
-    question = f"{a} + {b}"
-    answer = str(a + b)
-    st.write(answer)
-    return question, answer
-
-
+# -----------------------
+# Session state init
+# -----------------------
 if "captcha_question" not in st.session_state:
+    def generate_captcha():
+        a = random.randint(1, 49)
+        b = random.randint(1, 49)
+        return f"{a} + {b}", str(a + b)
+
     q, a = generate_captcha()
     st.session_state.captcha_question = q
     st.session_state.captcha_answer = a
 
 
+# -----------------------
+# CAPTCHA input
+# -----------------------
 user_captcha = st.text_input(
     f"🔒 What is {st.session_state.captcha_question}?"
 )
+
+
+# -----------------------
+# Submit logic
+# -----------------------
 def handle_submit():
-    # CAPTCHA check
+    # read latest input safely
     if user_captcha.strip() != st.session_state.captcha_answer:
         st.error("❌ Incorrect answer. Try again.")
-        return   # 👈 DO NOT regenerate CAPTCHA
-
-    st.session_state.last_submit_time = now
+        return
 
     pdf_file = generate_pdf(answers)
     st.success(f"PDF generated: {pdf_file}")
+
     try:
         send_email(pdf_file)
         st.success("PDF sent successfully!")
         st.balloons()
 
-        # regenerate ONLY after success
-        q, a = generate_captcha()
-        st.session_state.captcha_question = q
-        st.session_state.captcha_answer = a
+        # regenerate CAPTCHA ONLY on success
+        a = random.randint(1, 49)
+        b = random.randint(1, 49)
+        st.session_state.captcha_question = f"{a} + {b}"
+        st.session_state.captcha_answer = str(a + b)
 
     except Exception as e:
         st.error(f"Failed to send email: {e}")
 
 
+# -----------------------
+# Button
+# -----------------------
+if st.button("Generate PDF & Email (One Email Per Session)"):
+    handle_submit()
 
-# --- Button ---
-st.button(
-    "Generate PDF & Email (One Email Per Session)",
-    on_click=handle_submit
-)
+
+st.warning("One submit per correct captcha")
