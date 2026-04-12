@@ -280,26 +280,24 @@ def handle_submit():
         return
 
     pdf_file = generate_pdf(answers)
-    st.success(f"PDF generated: {pdf_file}")
 
     try:
         send_email(pdf_file)
-        st.success("PDF sent successfully!")
-        st.balloons()
 
-        # 🔥 regenerate CAPTCHA immediately
+        # 🔥 set success step
+        st.session_state.step = "success"
+
+        # regenerate CAPTCHA for next time
         a = random.randint(1, 49)
         b = random.randint(1, 49)
 
         st.session_state.captcha_question = f"{a} + {b}"
         st.session_state.captcha_answer = str(a + b)
 
-        # 🔥 force UI refresh so new CAPTCHA shows instantly
         st.rerun()
 
     except Exception as e:
         st.error(f"Failed to send email: {e}")
-
 
 # -----------------------
 # Button
