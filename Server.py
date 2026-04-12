@@ -1,13 +1,3 @@
-if st.session_state.step == "success":
-    st.success("✔ Email sent successfully!")
-    st.toast("Your PDF has been delivered 📧", icon="✅")
-    st.balloons()
-
-    if st.button("Send another PDF"):
-        st.session_state.step = "form"
-        st.rerun()
-
-    st.stop()
     
     
 # C:\Users\alepe\AppData\Local\Programs\Python\Python313\Scripts\streamlit.exe run c:\repos\Taxes\Local.py
@@ -25,6 +15,16 @@ from BasicInfo import BasicInfo, answers
 import os
 import time
 
+if st.session_state.step == "success":
+    st.success("✔ Email sent successfully!")
+    st.toast("Your PDF has been delivered 📧", icon="✅")
+    st.balloons()
+
+    if st.button("Send another PDF"):
+        st.session_state.step = "form"
+        st.rerun()
+
+    st.stop()
 
 import pickle
 
