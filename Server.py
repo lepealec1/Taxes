@@ -275,7 +275,6 @@ user_captcha = st.text_input(
 # Submit logic
 # -----------------------
 def handle_submit():
-    # read latest input safely
     if user_captcha.strip() != st.session_state.captcha_answer:
         st.error("❌ Incorrect answer. Try again.")
         return
@@ -288,11 +287,15 @@ def handle_submit():
         st.success("PDF sent successfully!")
         st.balloons()
 
-        # regenerate CAPTCHA ONLY on success
+        # 🔥 regenerate CAPTCHA immediately
         a = random.randint(1, 49)
         b = random.randint(1, 49)
+
         st.session_state.captcha_question = f"{a} + {b}"
         st.session_state.captcha_answer = str(a + b)
+
+        # 🔥 force UI refresh so new CAPTCHA shows instantly
+        st.rerun()
 
     except Exception as e:
         st.error(f"Failed to send email: {e}")
@@ -306,3 +309,5 @@ if st.button("Generate PDF & Email (One Email Per Session)"):
 
 
 st.warning("One submit per correct captcha")
+
+
