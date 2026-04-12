@@ -154,7 +154,7 @@ standard_mileage_rates = {
 # Example: get the rate for a specific year
 tax_year = answers.get('tax_year')
 standard_mileage_rate = standard_mileage_rates.get(tax_year)
-
+st.write(standard_mileage_rate)
 
 
 def HealthInsurance():
