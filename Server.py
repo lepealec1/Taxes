@@ -282,12 +282,8 @@ def handle_submit():
 
     # CAPTCHA check
     if user_captcha.strip() != st.session_state.captcha_answer:
-        st.error("❌ Incorrect answer. Please try again.")
-
-        q, a = generate_captcha()
-        st.session_state.captcha_question = q
-        st.session_state.captcha_answer = a
-        return
+        st.error("❌ Incorrect answer. Try again.")
+        return   # 👈 DO NOT regenerate CAPTCHA
 
     st.session_state.last_submit_time = now
 
@@ -299,18 +295,10 @@ def handle_submit():
         st.success("PDF sent successfully!")
         st.balloons()
 
+        # regenerate ONLY after success
         q, a = generate_captcha()
         st.session_state.captcha_question = q
         st.session_state.captcha_answer = a
 
     except Exception as e:
         st.error(f"Failed to send email: {e}")
-
-
-
-# --- Button ---
-st.button(
-    "Generate PDF & Email (One Email Per Session)",
-    on_click=handle_submit
-)
-
