@@ -1,11 +1,5 @@
 # C:\Users\alepe\AppData\Local\Programs\Python\Python313\Scripts\streamlit.exe run c:\repos\Taxes\Local.py
-def handle_submit():
-    if st.session_state.submit_count >= 3:
-        st.stop()  # hard stop execution
 
-    st.session_state.submit_count += 1
-    st.success(f"Submitted! ({st.session_state.submit_count}/3)")
-    
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -242,8 +236,24 @@ def send_email(pdf_file=None):
     st.success("Email sent!")
 
 
+
+# -----------------------
+if "submit_count" not in st.session_state:
+    st.session_state.submit_count = 0
+
+# -----------------------
+# Function definition
+# -----------------------
+def handle_submit():
+    if st.session_state.submit_count >= 3:
+        st.stop()
+
+    st.session_state.submit_count += 1
+    st.success(f"Submitted! ({st.session_state.submit_count}/3)")
+
+
 # --- Streamlit UI ---
-if st.button("Generate PDF & Email"):
+if st.button("Generate PDF & Email",on_click=handle_submit):
     pdf_file = generate_pdf(answers)
     st.success(f"PDF generated: {pdf_file}")
 
@@ -253,7 +263,6 @@ if st.button("Generate PDF & Email"):
         st.balloons()
     except Exception as e:
         st.error(f"Failed to send email: {e}")
-
-
-        
+    
+st.write(f"Used: {st.session_state.submit_count}/3")
 
