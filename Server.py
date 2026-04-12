@@ -9,8 +9,6 @@ if st.session_state.step == "success":
 
     st.stop()
     
-if "step" not in st.session_state:
-    st.session_state.step = "form"  # form | success
     
 # C:\Users\alepe\AppData\Local\Programs\Python\Python313\Scripts\streamlit.exe run c:\repos\Taxes\Local.py
 
@@ -323,3 +321,5 @@ if st.button("Generate PDF & Email (One Email Per Session)"):
 st.warning("One submit per correct captcha")
 
 
+if "step" not in st.session_state:
+    st.session_state.step = "form"  # form | success
