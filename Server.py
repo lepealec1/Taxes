@@ -11,6 +11,9 @@ import streamlit as st
 from fpdf import FPDF
 from BasicInfo import BasicInfo, answers
 import os
+import time
+
+
 import pickle
 
 
@@ -237,32 +240,47 @@ def send_email(pdf_file=None):
 
 
 
-# -----------------------
-if "submit_count" not in st.session_state:
-    st.session_state.submit_count = 0
+
 
 # -----------------------
 # Function definition
 # -----------------------
+import time
+import streamlit as st
+
+COOLDOWN = 10 * 60  # 10 minutes
+
+if "last_submit_time" not in st.session_state:
+    st.session_state.last_submit_time = 0
+
 def handle_submit():
-    if st.session_state.submit_count >= 3:
+    now = time.time()
+
+    if now - st.session_state.last_submit_time < COOLDOWN:
+        st.error("Please wait 10 minutes before submitting again.")
         st.stop()
 
-    st.session_state.submit_count += 1
-    st.success(f"Submitted! ({st.session_state.submit_count}/3)")
+    st.session_state.last_submit_time = now
 
-
-# --- Streamlit UI ---
-if st.button("Generate PDF & Email",on_click=handle_submit):
     pdf_file = generate_pdf(answers)
     st.success(f"PDF generated: {pdf_file}")
 
     try:
         send_email(pdf_file)
-        st.success("PDF sent to generic email!")
+        st.success("PDF sent successfully!")
         st.balloons()
     except Exception as e:
         st.error(f"Failed to send email: {e}")
-    
-st.write(f"Used: {st.session_state.submit_count}/3")
 
+# --- Streamlit UI ---
+if st.button("Generate PDF & Email",on_click=handle_submit):
+    pdf_file = generate_pdf(answers)
+    st.success(f"PDF generated: {pdf_file}")
+    try:
+        send_email(pdf_file)
+        st.success("PDF sent to generic email!")
+        time.sleep(60*10)
+    except Exception as e:
+        st.error(f"Failed to send email: {e}")
+    
+#st.write(f"Used: {st.session_state.submit_count}/3")
