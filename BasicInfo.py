@@ -838,7 +838,6 @@ def SchD():
         if answers.get('complex_basis') == "Yes":
                 st.warning("❌ Out of scope.")
                 return
-        st.warning ("✅ In scope.")
 
 
 def Deductions():
