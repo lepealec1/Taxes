@@ -182,26 +182,6 @@ def safe_one_line(value, max_len=120):
 
 
 
-# --- Streamlit UI ---
-if st.button("Generate PDF & Email"):
-    pdf_file = generate_pdf(answers)
-    st.success(f"PDF generated: {pdf_file}")
-
-    try:
-        send_email(pdf_file)
-        st.success("PDF sent to generic email!")
-        st.balloons()
-    except Exception as e:
-        st.error(f"Failed to send email: {e}")
-
-
-        
-
-import streamlit as st
-import smtplib
-from email.message import EmailMessage
-
-
 
 
 
