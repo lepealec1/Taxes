@@ -200,7 +200,7 @@ if "email_count" not in st.session_state:
 # -----------------------
 def handle_submit():
     if user_captcha.strip() != st.session_state.captcha_answer:
-        st.error("❌ Incorrect answer. Try again.")
+        st.error("❌ Incorrect answer. Please answer the CAPTCHA correctly to send your responses.")
         return
     pdf_file = generate_pdf(answers)
     try:
@@ -220,7 +220,7 @@ def handle_submit():
 # -----------------------
 # Button
 # -----------------------
-if st.button("Generate PDF & Email"):
+if st.button("Send Responses"):
     handle_submit()
 
 st.warning("The button will also send attachments if any are included.")
