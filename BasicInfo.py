@@ -629,9 +629,9 @@ def SSA():
                 key=f"SSA_Lump_Sum_status_{i}"
             )
             year_data["ssa_received"] = st.number_input(
-                f"Total Social Security received that year",
-                min_value=0.0,
-                step=100.0,
+                f"Total Social Security received that year ($)",
+                min_value=0,
+                step=100,
                 key=f"SSA_Lump_Sum_total_received_{i}"
             )
             year_data["lump_sum_amount"] = st.number_input(
@@ -641,27 +641,27 @@ def SSA():
                 key=f"SSA_Lump_Sum_portio_{i}"
             )
             year_data["agi"] = st.number_input(
-                f"AGI for that year (Form 1040 Line 11)",
-                min_value=0.0,
-                step=100.0,
+                f"AGI for that year (Form 1040 Line 11) ($)",
+                min_value=0,
+                step=100,
                 key=f"SSA_Lump_Sum_agi_{i}"
             )
             year_data["adjustments"] = st.number_input(
-                f"Adjustments/Exclusions (Form 1040 Line 10)",
-                min_value=0.0,
-                step=100.0,
+                f"Adjustments/Exclusions (Form 1040 Line 10) ($)",
+                min_value=0,
+                step=100,
                 key=f"SSA_Lump_Sum_adjustments_{i}"
             )
             year_data["tax_exempt_interest"] = st.number_input(
-                f"Tax-exempt interest (Form 1040 Line 2a)",
-                min_value=0.0,
-                step=100.0,
+                f"Tax-exempt interest (Form 1040 Line 2a) ($)",
+                min_value=0,
+                step=100,
                 key=f"interest_{i}"
             )
             year_data["taxable_ssa"] = st.number_input(
-                f"Taxable Social Security (Form 1040 Line 6b)",
-                min_value=0.0,
-                step=100.0,
+                f"Taxable Social Security (Form 1040 Line 6b) ($)",
+                min_value=0,
+                step=100,
                 key=f"SSA_Lump_Sum_taxable_ssa_{i}"
             )
             answers["ssa_lump_sum_details"].append(year_data)
