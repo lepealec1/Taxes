@@ -280,14 +280,14 @@ def MiscQuestions():
                 col1, col2 = st.columns(2)
                 with col1:
                     answers["EstimatedTax"][f"{key}_FD"] = st.number_input(
-                        f"Federal (FD) - {label}",
+                        f"Federal (FD) - {label} ($)",
                         min_value=0,
                         step=50,
                         key=f"fd_{key}"
                     )
                 with col2:
                     answers["EstimatedTax"][f"{key}_CA"] = st.number_input(
-                        f"California (CA) - {label}",
+                        f"California (CA) - {label} ($)",
                         min_value=0,
                         step=50,
                         key=f"ca_{key}"
@@ -404,14 +404,14 @@ def Income():
             ask_question(
                 answers,
                 "Screening_1099-C",
-                f"Does cancellation of debt included cancellation of debt included nonbusiness (no LLC's) credit card debt cancellation including interest in box 3 when {pronouns} are solvent (more assets than liabilities) before the cancellation ",
+                f"Does cancellation of debt included nonbusiness (i.e. LLCs) credit card debt cancellation including interest in box 3 when {pronouns} are solvent (more assets than liabilities) before the cancellation ",
                     input_type="radio",
                     options=typical_basic_response
                     )
-        if answers.get("Screening_1099-C") == "No":
+        if answers.get("Screening_1099-C") == "Yes":
             st.warning("❌ Out of Scope")
             return
-        if answers.get("Screening_1099-C") == "Yes":
+        if answers.get("Screening_1099-C") == "No":
             ask_question(  
                 answers,
                 "Screening_1099-C_2",
