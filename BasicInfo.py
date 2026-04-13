@@ -603,7 +603,7 @@ def SSA():
             return
         if answers.get("ssa_prior_year") == "Yes":
             st.warning(
-    f"⚠️ {pronouns} must enter details for each prior-year Social Security lump-sum payment as reported on previous tax returns (Form 1040)."
+    f"⚠️ {Pronouns} must enter details for each prior-year Social Security lump-sum payment as reported on previous tax returns (Form 1040)."
 )
         # ----------------------------
         # Number of prior years
