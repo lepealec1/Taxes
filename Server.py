@@ -1,28 +1,18 @@
 # C:\Users\alepe\AppData\Local\Programs\Python\Python313\Scripts\streamlit.exe run c:\repos\Taxes\Local.py
-import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
-from fpdf import FPDF
-import datetime
-import textwrap
 import streamlit as st
 from fpdf import FPDF
-from BasicInfo import BasicInfo, answers
-import time, pickle, os
-from Function import ask_question, generate_pdf
-
-
+import time, pickle, os, textwrap, datetime, smtplib
 
 st.title("VITA Supplemental Questionnaire")
 
-from BasicInfo import BasicInfo
-from BasicInfo import HealthInsurance
-from BasicInfo import CaResidency
-from BasicInfo import MiscQuestions
-from BasicInfo import answers
+from BasicInfo import MiscQuestions, answers, CaResidency, HealthInsurance, BasicInfo
 from BasicInfo import Disclaimers, Income, RequiredDocuments,F1099R,SSA, OtherIncome
 from BasicInfo import SchC, SchD, Deductions, CDCC, EducationCredits, RefundAndPayment, FinalDisclaimer, FinalNotes
+from Function import ask_question, generate_pdf
+
 
 Disclaimers()
 RequiredDocuments()
