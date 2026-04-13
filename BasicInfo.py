@@ -67,7 +67,7 @@ def BasicInfo():
         ask_question(
             answers,
             "can_be_claimed_as_dependent",
-            "Can you be claimed as a dependent?:",
+            "Can you or your spouse, if married, be claimed as a dependent?:",
             input_type="radio",
             options=typical_basic_response,
             columns=False
