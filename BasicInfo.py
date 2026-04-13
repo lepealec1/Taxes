@@ -64,6 +64,14 @@ def BasicInfo():
             options=filings_statuses,
             columns=False
         )
+        ask_question(
+            answers,
+            "can_be_claimed_as_dependent",
+            "Can you be claimed as a dependent?:",
+            input_type="radio",
+            options=typical_basic_response,
+            columns=False
+        )
         if answers.get('filing_status') == "Married Filing Jointly":
             pronouns='you or your spouse'
             Pronouns='you or your spouse'
