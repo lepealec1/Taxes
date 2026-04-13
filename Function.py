@@ -88,7 +88,6 @@ def ask_question(
 ):
     """
     Generic helper to ask a question in Streamlit and store in `answers` dict.
-    
     Parameters:
         answers (dict): dictionary to store results
         key_name (str): key to store the answer

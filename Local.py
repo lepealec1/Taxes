@@ -151,29 +151,6 @@ def safe_text(value, width=80):
 
 from fpdf import FPDF
 import datetime
-
-
-from fpdf import FPDF
-import datetime
-
-
-def safe_one_line(value, max_len=120):
-    if isinstance(value, datetime.date):
-        value = value.strftime("%Y-%m-%d")
-
-    text = str(value)
-
-    if len(text) > max_len:
-        text = text[:max_len] + "..."
-
-    return text
-
-
-
-
-
-from fpdf import FPDF
-import datetime
 import textwrap
 
 

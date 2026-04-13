@@ -1,5 +1,4 @@
 # C:\Users\alepe\AppData\Local\Programs\Python\Python313\Scripts\streamlit.exe run c:\repos\Taxes\Local.py
-
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -10,13 +9,7 @@ import textwrap
 import streamlit as st
 from fpdf import FPDF
 from BasicInfo import BasicInfo, answers
-import os
-import time
-
-
-import pickle
-
-
+import time, pickle, os
 from Function import ask_question, generate_pdf
 
 
@@ -29,7 +22,7 @@ from BasicInfo import CaResidency
 from BasicInfo import MiscQuestions
 from BasicInfo import answers
 from BasicInfo import Disclaimers, Income, RequiredDocuments,F1099R,SSA, OtherIncome
-from BasicInfo import SchC, SchD, Deductions, CDCC, EducationCredits, RefundAndPayment, FinalDisclaimer
+from BasicInfo import SchC, SchD, Deductions, CDCC, EducationCredits, RefundAndPayment, FinalDisclaimer, FinalNotes
 
 Disclaimers()
 RequiredDocuments()
@@ -37,7 +30,6 @@ BasicInfo()
 HealthInsurance()
 CaResidency()
 MiscQuestions()
-
 
 with st.expander("Income", expanded=False):
     Income()
@@ -53,8 +45,10 @@ with st.expander("Deductions & Credits", expanded=False):
     CDCC()
     EducationCredits()
 
-
 RefundAndPayment()
+
+FinalNotes()
+
 FinalDisclaimer()
 
 
@@ -125,12 +119,6 @@ import textwrap
 
 
 
-
-from fpdf import FPDF
-import datetime
-import textwrap
-
-
 def safe_text(value, width=80):
     text = str(value)
 
@@ -153,12 +141,8 @@ def safe_text(value, width=80):
 
     return "\n".join(result)
 
-from fpdf import FPDF
-import datetime
 
 
-from fpdf import FPDF
-import datetime
 
 
 def safe_one_line(value, max_len=120):

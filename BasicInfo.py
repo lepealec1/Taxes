@@ -1481,6 +1481,14 @@ def RefundAndPayment():
         if answers.get('payment_method') == 'Direct Debit (Bank)' or  answers.get('refund_method') == "Direct Deposit (Bank)":
             st.warning("🔵 Please have bank information ready for the volunteer.")
 
+def FinalNotes():
+    with st.expander("Final Notes", expanded=False):
+            answers["final_notes"] = st.text_area(
+                "Please write any other notes::",
+                key="final_notes"
+            )
+
+
 def FinalDisclaimer():
     with st.expander("Final Disclaimer", expanded=False):
         st.write(f"⚠️ {Pronouns} are ultimately responsible for {pronouns} tax return.")
