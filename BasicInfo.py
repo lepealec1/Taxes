@@ -665,7 +665,6 @@ def SSA():
                 key=f"SSA_Lump_Sum_taxable_ssa_{i}"
             )
             answers["ssa_lump_sum_details"].append(year_data)
-        st.success("✅ Lump sum Social Security details captured")
 
 def OtherIncome():
     global answers, yes_no, pronouns, pronouns2
