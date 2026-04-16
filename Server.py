@@ -87,53 +87,55 @@ def safe_one_line(value, max_len=120):
 
     return text
 uploaded_file = st.file_uploader("Upload a document (optional)")
-
 def send_email(pdf_file=None):
     st.write("pdf_file:", pdf_file)
-
     global uploaded_file
-
     TO_EMAIL = "lepealec518@gmail.com"
     EMAIL_ADDRESS = st.secrets["email"]["user"]
     EMAIL_PASSWORD = st.secrets["email"]["password"]
-
     msg = EmailMessage()
     msg["From"] = EMAIL_ADDRESS
     msg["To"] = TO_EMAIL
     msg["Subject"] = answers.get('name', 'User') + " Tax Questionnaire PDF"
     msg.set_content("Attached files.")
-
-    # ✅ uploaded file (if exists)
+    # ✅ Attach uploaded file (only if it exists)
     if uploaded_file is not None:
+        file_data = uploaded_file.read()
         msg.add_attachment(
-            uploaded_file.read(),
+            file_data,
             maintype="application",
             subtype="octet-stream",
             filename=uploaded_file.name
         )
-
-    # ✅ GENERATED PDF (FIXED)
-    if pdf_file:
-        msg.add_attachment(
-            pdf_file["pdf_bytes"],   # 🔥 THIS is the fix
-            maintype="application",
-            subtype="pdf",
-            filename=pdf_file["filename"]
-        )
-
-    # ❌ prevent empty email
-    if uploaded_file is None and pdf_file is None:
+    # ✅ Attach generated PDF (only if it exists)
+    if pdf_file and os.path.exists(pdf_file):
+        with open(pdf_file, "rb") as f:
+            msg.add_attachment(
+                f.read(),
+                maintype="application",
+                subtype="pdf",
+                filename=os.path.basename(pdf_file)
+            )
+    # ❌ Prevent sending empty email
+    if uploaded_file is None and not (pdf_file and os.path.exists(pdf_file)):
         st.warning("No file to send.")
         return
-
-    # send email
+    # Send email
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         server.send_message(msg)
-
     st.success("Email sent!")
-
-
+if "captcha_question" not in st.session_state:
+    def generate_captcha():
+        a = random.randint(1, 10)
+        b = random.randint(1, 10)
+        return f"{a} + {b}", str(a + b)
+    q, a = generate_captcha()
+    st.session_state.captcha_question = q
+    st.session_state.captcha_answer = a
+user_captcha = st.text_input(
+    f"🔒 CAPTCHA: What is {st.session_state.captcha_question}?"
+)
 
 
 
