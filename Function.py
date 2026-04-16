@@ -217,7 +217,7 @@ def clean_value(value):
 
 
 
-def generate_pdf(answers_dict):
+def generate_pdf(answers_dict,email):
     import datetime
     from fpdf import FPDF
 
@@ -583,6 +583,9 @@ def generate_pdf(answers_dict):
             pdf.cell(70, 6, f"{key.replace('_',' ').title()}:", border=0)
             pdf.cell(0, 6, val, ln=True)
 
-    pdf.output(filename)
-    return filename
-
+    if email==True:
+        pdf.output(filename)
+        return filename
+    else:
+        pdf_bytes = pdf.output(dest="S").encode("latin-1")
+        return pdf_bytes
