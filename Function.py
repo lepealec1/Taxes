@@ -217,9 +217,12 @@ def clean_value(value):
 
 
 
-def generate_pdf(answers_dict,email=True):
+def generate_pdf(answers_dict):
     import datetime
     from fpdf import FPDF
+
+    def clean(v):
+        return "" if v is None else str(v)
 
     name = answers_dict.get("name", "questionnaire").replace(" ", "_")
     filename = f"{name}.pdf"
@@ -235,6 +238,7 @@ def generate_pdf(answers_dict,email=True):
     pdf.set_font("Arial", "", 11)
 
     for key, value in answers_dict.items():
+
         # =========================
         # ESTIMATED TAX
         # =========================
@@ -244,6 +248,7 @@ def generate_pdf(answers_dict,email=True):
             pdf.set_font("Arial", "", 11)
 
             col_width = pdf.w / 2 - 15
+            quarters = ["Q1", "Q2", "Q3", "Q4"]
 
             def get_vals(q):
                 return (
@@ -251,31 +256,34 @@ def generate_pdf(answers_dict,email=True):
                     value.get(f"{q}_2025_CA", 0)
                 )
 
-            quarters = ["Q1", "Q2", "Q3", "Q4"]
-
             for i in range(0, 4, 2):
-                q_left = quarters[i]
-                q_right = quarters[i + 1]
+                q1, q2 = quarters[i], quarters[i + 1]
 
-                fd_l, ca_l = get_vals(q_left)
-                fd_r, ca_r = get_vals(q_right)
+                x = pdf.get_x()
+                y = pdf.get_y()
 
-                x_start = pdf.get_x()
-                y_start = pdf.get_y()
+                fd1, ca1 = get_vals(q1)
+                fd2, ca2 = get_vals(q2)
 
                 pdf.multi_cell(col_width, 6,
-                    f"{q_left} 2025\nFederal: {fd_l}\nCA: {ca_l}",
+                    f"{q1} 2025\nFederal: {fd1}\nCA: {ca1}",
                     border=1
                 )
 
-                pdf.set_xy(x_start + col_width, y_start)
+                pdf.set_xy(x + col_width, y)
 
                 pdf.multi_cell(col_width, 6,
-                    f"{q_right} 2025\nFederal: {fd_r}\nCA: {ca_r}",
+                    f"{q2} 2025\nFederal: {fd2}\nCA: {ca2}",
                     border=1
                 )
+
                 pdf.ln(2)
+
             continue
+
+        # =========================
+        # SCHEDULE C DETAILS
+        # =========================
         if key == "schedule_c_details" and isinstance(value, list):
 
             expense_order = [
@@ -300,9 +308,7 @@ def generate_pdf(answers_dict,email=True):
                 pdf.cell(0, 7, f"Business #{i+1}", ln=True)
                 pdf.ln(1)
 
-                # =========================
-                # INCOME SECTION
-                # =========================
+                # Income
                 pdf.set_font("Arial", "B", 10)
                 pdf.cell(0, 6, "Income", ln=True)
                 pdf.set_font("Arial", "", 9)
@@ -318,38 +324,25 @@ def generate_pdf(answers_dict,email=True):
 
                 for k in income_fields:
                     if k in biz:
-                        v = biz.get(k)
-
-                        if hasattr(v, "strftime"):
-                            v = v.strftime("%Y-%m-%d")
-
-                        v = clean_value(v)
-
+                        v = clean(biz.get(k))
                         pdf.cell(70, 6, f"{labelize(k)}:", border=0)
-                        pdf.cell(0, 6, str(v), ln=True)
+                        pdf.cell(0, 6, v, ln=True)
 
                 pdf.ln(2)
 
-
-                # =========================
-                # EXPENSE TABLE
-                # =========================
+                # Expense table
                 pdf.set_font("Arial", "B", 9)
-
                 headers = ["Expense", "Amount", "Expense", "Amount"]
+
                 for h in headers:
                     pdf.cell(col_w, row_h, h, border=1, align="C")
                 pdf.ln()
 
                 pdf.set_font("Arial", "", 9)
 
-                ordered = [
-                    (k, clean_value(biz.get(k, 0)))
-                    for k in expense_order if k in biz
-                ]
+                ordered = [(k, clean(biz.get(k, 0))) for k in expense_order if k in biz]
 
                 odd, even = [], []
-
                 for k, v in ordered:
                     if (expense_order.index(k) + 1) % 2:
                         odd.append((k, v))
@@ -359,22 +352,20 @@ def generate_pdf(answers_dict,email=True):
                 max_len = max(len(odd), len(even))
 
                 for idx in range(max_len):
-
                     l = odd[idx] if idx < len(odd) else ("", "")
                     r = even[idx] if idx < len(even) else ("", "")
 
-                    pdf.cell(col_w, row_h, labelize(l[0]) if l else "", border=1)
-                    pdf.cell(col_w, row_h, str(l[1]) if l else "", border=1)
+                    pdf.cell(col_w, row_h, labelize(l[0]) if l[0] else "", border=1)
+                    pdf.cell(col_w, row_h, str(l[1]) if l[1] else "", border=1)
 
-                    pdf.cell(col_w, row_h, labelize(r[0]) if r else "", border=1)
-                    pdf.cell(col_w, row_h, str(r[1]) if r else "", border=1)
+                    pdf.cell(col_w, row_h, labelize(r[0]) if r[0] else "", border=1)
+                    pdf.cell(col_w, row_h, str(r[1]) if r[1] else "", border=1)
 
                     pdf.ln(row_h)
 
                 pdf.ln(4)
-                # =========================
-                # VEHICLE SECTION
-                # =========================
+
+                # Vehicle
                 pdf.set_font("Arial", "B", 10)
                 pdf.cell(0, 6, "Vehicle Information", ln=True)
                 pdf.set_font("Arial", "", 9)
@@ -387,205 +378,98 @@ def generate_pdf(answers_dict,email=True):
                     "SCH_C_vehicle_off_duty",
                     "SCH_C_vehicle_evidence"
                 ]
+
                 for k in vehicle_fields:
                     if k in biz:
-                        v = biz.get(k)
-                        if hasattr(v, "strftime"):
-                            v = v.strftime("%Y-%m-%d")
-                        v = clean_value(v)
                         pdf.cell(70, 6, f"{labelize(k)}:", border=0)
-                        pdf.cell(0, 6, str(v), ln=True)
+                        pdf.cell(0, 6, clean(biz.get(k)), ln=True)
+
                 pdf.ln(2)
+
             continue
+
+        # =========================
+        # CDCC
+        # =========================
         if key == "CDCC_details":
             children = (value or {}).get("children") or []
-            if isinstance(children, list) and len(children) > 0:
+
+            if isinstance(children, list) and children:
                 pdf.set_font("Arial", "B", 12)
-                pdf.cell(0, 8, "Child & Dependent Care Credit (CDCC)", ln=True)
+                pdf.cell(0, 8, "Child & Dependent Care Credit", ln=True)
                 pdf.ln(2)
+
                 tax_year = int(answers_dict.get("tax_year", 2024))
                 ref_date = datetime.date(tax_year, 12, 31)
+
                 for i, child in enumerate(children, start=1):
                     if not isinstance(child, dict):
                         continue
+
                     pdf.set_font("Arial", "B", 11)
                     pdf.cell(0, 7, f"Child #{i}", ln=True)
-                    # ================= CHILD =================
+                    pdf.set_font("Arial", "", 10)
+
                     name = child.get("name") or "N/A"
                     birthday = child.get("birthday")
+
                     if isinstance(birthday, datetime.date):
-                        age = (
-                            ref_date.year
-                            - birthday.year
-                            - ((ref_date.month, ref_date.day) <
-                            (birthday.month, birthday.day))
-                        )
-                        status = "Over 13" if isinstance(age, int) and age >= 13 else "OK"
+                        age = ref_date.year - birthday.year
                     else:
                         age = "N/A"
-                        status = "Missing DOB"
 
-                    pdf.set_font("Arial", "", 10)
                     pdf.cell(50, 6, "Name:", border=0)
                     pdf.cell(0, 6, str(name), ln=True)
-
-                    pdf.cell(50, 6, "Birthday:", border=0)
-                    pdf.cell(0, 6, str(birthday) if birthday else "N/A", ln=True)
 
                     pdf.cell(50, 6, "Age:", border=0)
                     pdf.cell(0, 6, str(age), ln=True)
 
-                    pdf.cell(50, 6, "Status:", border=0)
-                    pdf.cell(0, 6, str(status), ln=True)
-
-                    pdf.ln(2)
-
-                    # ================= PROVIDER =================
-                    pdf.set_font("Arial", "B", 10)
-                    pdf.cell(0, 6, "Provider Information", ln=True)
-
-                    pdf.set_font("Arial", "", 10)
-
-                    pdf.cell(50, 6, "ID Type:", border=0)
-                    pdf.cell(0, 6, child.get("provider_id_type") or "N/A", ln=True)
-
-                    pdf.cell(50, 6, "Name:", border=0)
-                    pdf.cell(0, 6, child.get("provider_name") or "N/A", ln=True)
-
-                    pdf.cell(50, 6, "Address:", border=0)
-                    pdf.cell(0, 6, child.get("provider_address") or "N/A", ln=True)
-
-                    pdf.cell(50, 6, "Phone:", border=0)
-                    pdf.cell(0, 6, child.get("provider_phone") or "N/A", ln=True)
-
-                    pdf.cell(50, 6, "Amount Paid:", border=0)
-                    pdf.cell(0, 6, str(child.get("amount_paid") or 0), ln=True)
-
-                    # flags
-                    flags = child.get("provider_flags") or []
-                    if isinstance(flags, list):
-                        flags = ", ".join(flags)
-
-                    pdf.cell(50, 6, "Flags:", border=0)
-                    pdf.cell(0, 6, flags or "None", ln=True)
-
-                    pdf.ln(5)
-
-                pdf.ln(3)
+                    pdf.ln(3)
 
             continue
+
         # =========================
-        # EDUCATION CREDITS
+        # EDUCATION
         # =========================
         if key == "EducationCredits":
             students = (value or {}).get("students") or []
 
-            if isinstance(students, list) and len(students) > 0:
+            if students:
                 pdf.set_font("Arial", "B", 12)
-                pdf.cell(0, 8, "Education Credits (1098-T)", ln=True)
+                pdf.cell(0, 8, "Education Credits", ln=True)
                 pdf.ln(2)
 
-                for i, stu in enumerate(students, start=1):
+                for i, stu in enumerate(students, 1):
                     if not isinstance(stu, dict):
                         continue
 
                     pdf.set_font("Arial", "B", 11)
                     pdf.cell(0, 7, f"Student #{i}", ln=True)
-
                     pdf.set_font("Arial", "", 10)
 
-                    # ================= BASIC =================
                     pdf.cell(60, 6, "Name:", border=0)
                     pdf.cell(0, 6, stu.get("name") or "N/A", ln=True)
 
-                    pdf.cell(60, 6, "Relationship:", border=0)
-                    pdf.cell(0, 6, stu.get("relationship") or "N/A", ln=True)
-
-                    pdf.cell(60, 6, "Age:", border=0)
-                    pdf.cell(0, 6, str(stu.get("age") or "N/A"), ln=True)
-
-                    pdf.ln(2)
-
-                    # ================= STATUS =================
-                    pdf.set_font("Arial", "B", 10)
-                    pdf.cell(0, 6, "Student Status", ln=True)
-
-                    pdf.set_font("Arial", "", 10)
-
-                    pdf.cell(60, 6, "Enrollment:", border=0)
-                    pdf.cell(0, 6, stu.get("enrollment_status") or "N/A", ln=True)
-
-                    pdf.cell(60, 6, "Level:", border=0)
-                    pdf.cell(0, 6, stu.get("level") or "N/A", ln=True)
-
-                    pdf.cell(60, 6, "Years Post-Secondary:", border=0)
-                    pdf.cell(0, 6, str(stu.get("years_post_secondary") or "0"), ln=True)
-
-                    pdf.ln(2)
-
-                    # ================= ELIGIBILITY =================
-                    pdf.set_font("Arial", "B", 10)
-                    pdf.cell(0, 6, "Eligibility", ln=True)
-
-                    pdf.set_font("Arial", "", 10)
-
-                    pdf.cell(60, 6, "Felony Drug Conviction:", border=0)
-                    pdf.cell(0, 6, stu.get("felony_drug") or "N/A", ln=True)
-
-                    pdf.cell(60, 6, "AOTC > 4 Years:", border=0)
-                    pdf.cell(0, 6, stu.get("aotc_4_years") or "N/A", ln=True)
-
-                    pdf.cell(60, 6, "Box 4 or 6:", border=0)
-                    pdf.cell(0, 6, stu.get("box4_or_6") or "N/A", ln=True)
-
-                    pdf.ln(2)
-
-                    # ================= FINANCIAL =================
-                    pdf.set_font("Arial", "B", 10)
-                    pdf.cell(0, 6, "Education Amounts", ln=True)
-
-                    pdf.set_font("Arial", "", 10)
-
-                    pdf.cell(60, 6, "Box 1 Payments:", border=0)
-                    pdf.cell(0, 6, str(stu.get("payments_box1") or 0), ln=True)
-
-                    pdf.cell(60, 6, "Box 5 Scholarships:", border=0)
-                    pdf.cell(0, 6, str(stu.get("scholarships_box5") or 0), ln=True)
-
-                    pdf.cell(60, 6, "Additional Expenses:", border=0)
-                    pdf.cell(0, 6, str(stu.get("additional_qualified_expenses_amount") or 0), ln=True)
-
-                    pdf.cell(60, 6, "Qualified Expenses:", border=0)
+                    pdf.cell(60, 6, "Expenses:", border=0)
                     pdf.cell(0, 6, str(stu.get("qualified_expenses") or 0), ln=True)
 
-                    # ================= RESULT =================
-                    qee = stu.get("qualified_expenses", 0)
-
-                    pdf.ln(1)
-                    if qee > 0:
-                        pdf.cell(0, 6, "Result: Qualified education expenses eligible", ln=True)
-                    elif qee < 0:
-                        pdf.cell(0, 6, "Result: Possible taxable scholarship income", ln=True)
-                    else:
-                        pdf.cell(0, 6, "Result: No net qualified expenses", ln=True)
-
-                    pdf.ln(5)
-
-                pdf.ln(3)
+                    pdf.ln(3)
 
             continue
+
         # =========================
         # DEFAULT
         # =========================
-
-        val=safe_one_line(clean_value(value))
-        if "{" not in str(val):
+        if not isinstance(value, (dict, list)):
             pdf.cell(70, 6, f"{key.replace('_',' ').title()}:", border=0)
-            pdf.cell(0, 6, val, ln=True)
+            pdf.cell(0, 6, clean(value), ln=True)
 
-    if email==True:
-        pdf.output(filename)
-        return filename
-    else:
-        pdf_bytes = pdf.output(dest="S").encode("latin-1")
-        return pdf_bytes
+    # =========================
+    # IMPORTANT: STREAMLIT SAFE OUTPUT
+    # =========================
+    pdf_bytes = pdf.output(dest="S").encode("latin-1")
+
+    return {
+        "pdf_bytes": pdf_bytes,
+        "filename": filename
+    }
