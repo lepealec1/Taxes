@@ -167,9 +167,9 @@ st.metric("📧 Emails Sent Successfully:", st.session_state.email_count)
 
 from datetime import date
 
-pdf_file = generate_pdf(answers,email=False)
+pdf_file = generate_pdf(answers)
 with open(pdf_file, "rb") as f:
-    pdf_bytes = f.read()
+    pdf_bytes = f.read()    
 
 today = date.today().strftime("%Y-%m-%d")
 
