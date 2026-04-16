@@ -107,6 +107,7 @@ def safe_one_line(value, max_len=120):
 uploaded_file = st.file_uploader("Upload a document (optional)")
 def send_email(pdf_file=None):
     pdf_file=pdf_file["filename"]
+    st.write(pdf_file)
     global uploaded_file
     TO_EMAIL = "lepealec518@gmail.com"
     EMAIL_ADDRESS = st.secrets["email"]["user"]
