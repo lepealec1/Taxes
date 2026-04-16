@@ -189,8 +189,6 @@ def handle_submit():
         b = random.randint(1, 9)
         st.session_state.captcha_question = f"{a} + {b}"
         st.session_state.captcha_answer = str(a + b)
-        import time
-        time.sleep(5)
         st.rerun()
     except Exception as e:
         st.error(f"Failed to send email: {e}")
