@@ -175,6 +175,6 @@ today = date.today().strftime("%Y-%m-%d")
 st.download_button(
     "Download PDF",
     data=result["pdf_bytes"],
-    file_name=f"{result['filename'].replace('.pdf','')}_{today}.pdf",
+    file_name=f"{answers.get('tax_year','unknown')}_VITA_Questionnaire_{today}.pdf",
     mime="application/pdf"
-)
+)    
