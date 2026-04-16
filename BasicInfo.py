@@ -87,7 +87,7 @@ def BasicInfo():
             ask_question(
                 answers,
                 "legally_married",
-               f"1) Were you legally married as of December 31, {answers.get('tax_year')}?",
+               f"Were you legally married as of December 31, {answers.get('tax_year')}?",
                             input_type="radio",
                 options=yes_no,
                 help_text="\n\n You are considered married if you were legally seperated under a divorce or separated maintenance agreement decree. \n\n Marriage status does not depend on where a spouse lives."
@@ -96,7 +96,7 @@ def BasicInfo():
                 ask_question(
                     answers,
                     "spouse_died",
-        f"4) Did your spouse die in {answers.get('tax_year')-2} or {answers.get('tax_year')-1}?",
+        f"Did your spouse die in {answers.get('tax_year')-2} or {answers.get('tax_year')-1}?",
                                 input_type="radio",
                     options=yes_no
                 )
@@ -104,7 +104,7 @@ def BasicInfo():
                 ask_question(
                     answers,
                     "file_jointly",
-                "2) Do you wish to filing a joint return?",
+                "Do you wish to filing a joint return?",
                                 input_type="radio",
                     options=yes_no
                 )
@@ -115,7 +115,7 @@ def BasicInfo():
                     ask_question(
                         answers,
                         "married_follow_up_questions",
-                    f"3) Do all the following apply? \n\n• You file a separate return from your spouse \n\n• You paid more than half the cost of keeping up your home for the required period of time \n\n• Your spouse did not live in your home during the last 6 months of {answers.get('tax_year')} \n\n• Your home was the main home of your child, stepchild, or foster child for more than half the year (a grandchild doesn’t meet this test). For rules applying to birth, death, or temporary absence during the year, see Publication 17 \n\n• You claim an exemption for the child (unless the noncustodial parent claims the child under rules for divorced or separated parents or parents who live apart)",
+                    f"Do all the following apply? \n\n• You file a separate return from your spouse \n\n• You paid more than half the cost of keeping up your home for the required period of time \n\n• Your spouse did not live in your home during the last 6 months of {answers.get('tax_year')} \n\n• Your home was the main home of your child, stepchild, or foster child for more than half the year (a grandchild doesn’t meet this test). For rules applying to birth, death, or temporary absence during the year, see Publication 17 \n\n• You claim an exemption for the child (unless the noncustodial parent claims the child under rules for divorced or separated parents or parents who live apart)",
                                     input_type="radio",
                         options=yes_no
                     )
@@ -129,7 +129,7 @@ def BasicInfo():
             ask_question(
                 answers,
                 "qualified_surviving_spouse",
-                    f"5) Do all of the following apply? \n\n• You were entitled to file a joint return with your spouse for the year your spouse died \n\n• You didn’t remarry before the end of {answers.get('tax_year')} \n\n• You have a child or stepchild who lived with you all year, except for temporary absences or other limited exceptions, and who is your dependent or who would qualify as your dependent except that: he or she does not meet the gross income test, does not meet the joint return test, or except that you may be claimed as a dependent by another taxpayer. Don’t include a grandchild or foster child \n\n• You paid more than half the cost of keeping up the home for {answers.get('tax_year')}",
+                    f"Do all of the following apply? \n\n• You were entitled to file a joint return with your spouse for the year your spouse died \n\n• You didn’t remarry before the end of {answers.get('tax_year')} \n\n• You have a child or stepchild who lived with you all year, except for temporary absences or other limited exceptions, and who is your dependent or who would qualify as your dependent except that: he or she does not meet the gross income test, does not meet the joint return test, or except that you may be claimed as a dependent by another taxpayer. Don’t include a grandchild or foster child \n\n• You paid more than half the cost of keeping up the home for {answers.get('tax_year')}",
                             input_type="radio",
                 options=yes_no
             )
@@ -140,7 +140,7 @@ def BasicInfo():
             ask_question(
                 answers,
                 "MFS_HOH_S",
-                f"6) Do both of the following apply? \n\n• You paid more than 1/2 the cost of keeping up your home for {answers.get('tax_year')} \n\n• A “qualifying person” lived with you in your home for more than 1/2 the year. If the qualifying person is your dependent parent, your dependent parent does not have to live with you",
+                f"Do both of the following apply? \n\n• You paid more than 1/2 the cost of keeping up your home for {answers.get('tax_year')} \n\n• A “qualifying person” lived with you in your home for more than 1/2 the year. If the qualifying person is your dependent parent, your dependent parent does not have to live with you",
                             input_type="radio",
                 options=yes_no )
             if answers.get('MFS_HOH_S')=="Yes":
@@ -985,7 +985,6 @@ def Deductions():
                 input_type="radio",
                 options=yes_no
             )
-        st.write(answers.get('cash_gifts')=="Yes")
         if answers.get('cash_gifts') == "Yes":
             ask_question(
                 answers,
@@ -1004,7 +1003,6 @@ def Deductions():
             )
         filings_statuses2 = ["Single", "Head of Houeshold", "Married Filing Jointly", "Married Filing Separately","Qualified Surviving Spouse"]
         sch_a_expensess=["Mortgage Interest","Real Estate Taxes","Cash Gifts to Charity","Non-Cash Gifts to Charity","DMV Tags","Medical Expenses","Gambling Losses","Other"]
-        st.write(answers.get('itemize_question')=="Yes")
         if answers.get('itemize_question') == "Yes":
             ask_question(
                 answers,
@@ -1163,7 +1161,7 @@ def Deductions():
 def CDCC():
     global answers, yes_no, pronouns, pronouns2
 
-    with st.expander("Child & Dependent Care Credit (CDCC)", expanded=False):
+    with st.expander("Child & Dependent Care Credit (2441)", expanded=False):
 
         ask_question(answers, "child_care_expenses",
             f"Do {pronouns2} have child care expenses for children under 13?",
@@ -1343,7 +1341,6 @@ def EducationCredits():
             # STUDENT LOOP
             # =========================
             st.subheader("Student Information")
-
             num_students = st.number_input(
                 "How many students? (Max 5)",
                 min_value=1,
@@ -1351,7 +1348,6 @@ def EducationCredits():
                 step=1,
                 key="EDU_num_students"
             )
-
             answers["EDU_students"] = []
             tax_year = int(answers.get("tax_year"))
             for i in range(int(num_students)):
@@ -1412,39 +1408,33 @@ def EducationCredits():
                     st.warning("❌ Out of scope")
                     return
                 student["payments_box1"] = st.number_input(
-                    "1) Payments Received (Box 1)  ($)",
+                    "Payments Received (Box 1)  ($)",
                     min_value=0,
                     step=100,
                     key=f"EDU_box1_{i}"
                 )
                 student["scholarships_box5"] = st.number_input(
-                    "2) Scholarships or Grants (Box 5)  ($)",
+                    "Scholarships or Grants (Box 5)  ($)",
                     min_value=0,
                     step=100,
                     key=f"EDU_box5_{i}"
                 )
-                
-                student["additional_expenses"] = st.number_input(
-                    "3) Additional qualified expenses (books, supplies, etc.) ($)",
+                student["additional_qualified_edu_expenses_amount"] = st.number_input(
+                    "Additional qualified educational expenses ($)",
                     key=f"EDU_expenses_{i}",min_value=0
                 )
-                student["additional_qualified_expenses_amount"] = st.number_input(
-                    "Total Additional Qualified Educational Expenses Amount  ($)",
-                    min_value=0,
-                    step=100,
-                    key=f"EDU_expenses_amt_{i}",
-                    help="Qualified educational expenses include tuition, fees, books and supplies required for school."
-                )
+                st.warning("📚 educational expenses includes books, supplies, etc.")
+                st.warning("📚 Do not include expenses like rent or living expenses.")
                 # ---------------- CALCULATION ----------------
                 qee = (
                     student["payments_box1"]
-                    + student["additional_qualified_expenses_amount"]
+                    + student["additional_qualified_edu_expenses_amount"]
                     - student["scholarships_box5"]
                 )
                 student["qualified_expenses"] = qee
-                st.write(f"### Calculated Qualified Expenses: **{qee}**")
+                st.write(f"### Calculated Qualified Expenses: $**{qee}**")
                 if qee > 0:
-                    st.success("✅ Eligible qualified education expenses")
+                    st.success("📚 Eligible qualified education expenses")
                 elif qee < 0:
                     st.warning("Possible taxable scholarship income")
                 else:
@@ -1504,3 +1494,4 @@ def FinalDisclaimer():
         st.write(f"{Pronouns} are responsible for reviewing the completed return before signing and e-filing.")
         st.write("VITA volunteers cannot provide legal or tax advice beyond the scope of the program.")
         st.write("By submitting, you confirm that the information provided is true and complete to the best of your knowledge.")
+
