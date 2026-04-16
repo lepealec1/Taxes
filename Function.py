@@ -220,17 +220,23 @@ def clean_value(value):
 def generate_pdf(answers_dict):
     import datetime
     from fpdf import FPDF
+    from datetime import date
 
     def clean(v):
         return "" if v is None else str(v)
+    today = date.today().strftime("%Y-%m-%d")
 
     tax_year = str(answers_dict.get("tax_year", "unknown_year"))
-    person_name = str(answers_dict.get("name", "questionnaire"))
+
+    person_name = answers_dict.get("name")
+    if not person_name:
+        person_name = "no_name"
+    else:
+        person_name = str(person_name)
 
     name = f"{tax_year}_{person_name}".replace(" ", "_")
 
-    filename = f"{name}_VITA_Questionnaire_{today}.pdf"
-
+    filename = f"{name}_questionnaire_{today}.pdf"
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
