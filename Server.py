@@ -108,6 +108,7 @@ def send_email(pdf_file=None):
         )
     # ✅ Attach generated PDF (only if it exists)
     if pdf_file and os.path.exists(pdf_file):
+        st.write(f{"pdf_file:",pdf_file})
         with open(pdf_file, "rb") as f:
             msg.add_attachment(
                 f.read(),
@@ -175,6 +176,6 @@ today = date.today().strftime("%Y-%m-%d")
 st.download_button(
     "Download PDF",
     data=result["pdf_bytes"],
-    file_name=f"{answers.get('tax_year','unknown')}_VITA_Questionnaire_{today}.pdf",
+    file_name=f"{answers.get('tax_year'),'_',answers.get('name')}_VITA_Questionnaire_{today}.pdf",
     mime="application/pdf"
 )    
