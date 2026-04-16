@@ -101,28 +101,6 @@ def format_value(value, max_width=90):
 
 
 
-def safe_text(value, width=80):
-    text = str(value)
-
-    # break by lines first
-    lines = text.split("\n")
-    result = []
-
-    for line in lines:
-        words = line.split(" ")
-        rebuilt = []
-
-        for word in words:
-            # CRITICAL FIX: break unspaced long strings
-            if len(word) > width:
-                rebuilt.append("\n".join(textwrap.wrap(word, width)))
-            else:
-                rebuilt.append(word)
-
-        result.append(" ".join(rebuilt))
-
-    return "\n".join(result)
-
 def safe_one_line(value, max_len=120):
     if isinstance(value, datetime.date):
         value = value.strftime("%Y-%m-%d")

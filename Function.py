@@ -3,6 +3,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
+
 import datetime
 import textwrap
 import streamlit as st
@@ -34,7 +35,6 @@ def safe_one_line(value, max_len=120):
 
 
 import streamlit as st
-yes_no=['Yes','No']
 def ask_question(answers, key_name, question,index=0, input_type="text", options=None, columns=True, help_text=None, allow_none=False):
     if input_type in ["text", "text_input"]:
         answers[key_name] = st.text_input(question, key=key_name, help=help_text)
