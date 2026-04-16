@@ -88,6 +88,7 @@ def safe_one_line(value, max_len=120):
     return text
 uploaded_file = st.file_uploader("Upload a document (optional)")
 def send_email(pdf_file=None):
+    st.write("pdf_file:", pdf_file)
     global uploaded_file
     TO_EMAIL = "lepealec518@gmail.com"
     EMAIL_ADDRESS = st.secrets["email"]["user"]
@@ -108,7 +109,6 @@ def send_email(pdf_file=None):
         )
     # ✅ Attach generated PDF (only if it exists)
     if pdf_file and os.path.exists(pdf_file):
-        st.write("pdf_file:", pdf_file)
         with open(pdf_file, "rb") as f:
             msg.add_attachment(
                 f.read(),
