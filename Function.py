@@ -226,8 +226,6 @@ def generate_pdf(answers_dict):
 
     name = answers_dict.get("name", "questionnaire").replace(" ", "_")
     filename = f"{name}.pdf"
-
-    filename = "abc.pdf"
     
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
