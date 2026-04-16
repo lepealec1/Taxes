@@ -224,8 +224,12 @@ def generate_pdf(answers_dict):
     def clean(v):
         return "" if v is None else str(v)
 
-    name = answers_dict.get("name", "questionnaire").replace(" ", "_")
-    filename = f"{name}.pdf"
+    tax_year = str(answers_dict.get("tax_year", "unknown_year"))
+    person_name = str(answers_dict.get("name", "questionnaire"))
+
+    name = f"{tax_year}_{person_name}".replace(" ", "_")
+
+    filename = f"{name}_VITA_Questionnaire_{today}.pdf"
 
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
