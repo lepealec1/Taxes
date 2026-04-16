@@ -235,8 +235,9 @@ def generate_pdf(answers_dict):
         person_name = str(person_name)
 
     name = f"{tax_year}_{person_name}".replace(" ", "_")
-
+    
     filename = f"{name}_questionnaire_{today}.pdf"
+    st.write(filename)
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
