@@ -20,7 +20,6 @@ BasicInfo()
 HealthInsurance()
 CaResidency()
 MiscQuestions()
-
 with st.expander("Income", expanded=False):
     Income()
     F1099R()
@@ -28,62 +27,41 @@ with st.expander("Income", expanded=False):
     SchC()
     SchD()
     OtherIncome()
-
-
 with st.expander("Deductions & Credits", expanded=False):
     Deductions()
     CDCC()
     EducationCredits()
-
 RefundAndPayment()
-
 FinalNotes()
-
 FinalDisclaimer()
 
-
-
 def format_value(value, max_width=90):
     if isinstance(value, datetime.date):
         return value.strftime("%Y-%m-%d")
-
     if isinstance(value, list):
         value = ", ".join(str(v) for v in value)
-
     if isinstance(value, dict):
         value = "\n".join(f"{k}: {format_value(v)}" for k, v in value.items())
-
     text = str(value)
-
     wrapped = []
     for line in text.split("\n"):
         words = line.split(" ")
         rebuilt = []
-
         for word in words:
             if len(word) > max_width:
                 rebuilt.append("\n".join(textwrap.wrap(word, max_width)))
             else:
                 rebuilt.append(word)
-
         wrapped.append(" ".join(rebuilt))
-
     return "\n".join(wrapped)
-
-
-
 def format_value(value, max_width=90):
     if isinstance(value, datetime.date):
         return value.strftime("%Y-%m-%d")
-
     if isinstance(value, list):
         value = ", ".join(str(v) for v in value)
-
     if isinstance(value, dict):
         value = " | ".join(f"{k}: {format_value(v)}" for k, v in value.items())
-
     text = str(value)
-
     wrapped = []
     for line in text.split("\n"):
         words = line.split(" ")
@@ -98,9 +76,6 @@ def format_value(value, max_width=90):
         wrapped.append(" ".join(rebuilt))
 
     return "\n".join(wrapped)
-
-
-
 def safe_one_line(value, max_len=120):
     if isinstance(value, datetime.date):
         value = value.strftime("%Y-%m-%d")
@@ -149,9 +124,6 @@ def send_email(pdf_file=None):
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         server.send_message(msg)
     st.success("Email sent!")
-# -----------------------
-# Session state init
-# -----------------------
 if "captcha_question" not in st.session_state:
     def generate_captcha():
         a = random.randint(1, 10)
@@ -160,17 +132,11 @@ if "captcha_question" not in st.session_state:
     q, a = generate_captcha()
     st.session_state.captcha_question = q
     st.session_state.captcha_answer = a
-# -----------------------
-# CAPTCHA input
-# -----------------------
 user_captcha = st.text_input(
     f"🔒 CAPTCHA: What is {st.session_state.captcha_question}?"
 )
 if "email_count" not in st.session_state:
     st.session_state.email_count = 0
-# -----------------------
-# Submit logic
-# -----------------------
 def handle_submit():
     if user_captcha.strip() != st.session_state.captcha_answer:
         st.error("❌ Incorrect answer. Please answer the CAPTCHA correctly to send your responses.")
@@ -190,9 +156,6 @@ def handle_submit():
     except Exception as e:
         st.error(f"Failed to send email: {e}")
 
-# -----------------------
-# Button
-# -----------------------
 if st.button("Send Responses"):
     handle_submit()
 
@@ -200,3 +163,13 @@ st.warning("The button will also send attachments if any are included.")
 st.warning("One submission per correct CAPTCHA.")
 
 st.metric("📧 Emails Sent Successfully:", st.session_state.email_count)
+
+
+pdf_file = generate_pdf(answers)
+with open(pdf_file, "rb") as f:
+    st.download_button(
+        "Download PDF",
+        f,
+        file_name=f"{answers.get('name', 'output')}.pdf",
+        mime="application/pdf"
+    )
