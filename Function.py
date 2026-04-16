@@ -217,7 +217,7 @@ def clean_value(value):
 
 
 
-def generate_pdf(answers_dict,email):
+def generate_pdf(answers_dict,email=True):
     import datetime
     from fpdf import FPDF
 
