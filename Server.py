@@ -89,77 +89,48 @@ def safe_one_line(value, max_len=120):
 uploaded_file = st.file_uploader("Upload a document (optional)")
 def send_email(pdf_file=None):
     st.write("pdf_file:", pdf_file)
+
     global uploaded_file
+
     TO_EMAIL = "lepealec518@gmail.com"
     EMAIL_ADDRESS = st.secrets["email"]["user"]
     EMAIL_PASSWORD = st.secrets["email"]["password"]
+
     msg = EmailMessage()
     msg["From"] = EMAIL_ADDRESS
     msg["To"] = TO_EMAIL
     msg["Subject"] = answers.get('name', 'User') + " Tax Questionnaire PDF"
     msg.set_content("Attached files.")
-    # ✅ Attach uploaded file (only if it exists)
+
+    # ✅ uploaded file (if exists)
     if uploaded_file is not None:
-        file_data = uploaded_file.read()
         msg.add_attachment(
-            file_data,
+            uploaded_file.read(),
             maintype="application",
             subtype="octet-stream",
             filename=uploaded_file.name
         )
-    # ✅ Attach generated PDF (only if it exists)
-    if pdf_file and os.path.exists(pdf_file):
-        with open(pdf_file, "rb") as f:
-            msg.add_attachment(
-                f.read(),
-                maintype="application",
-                subtype="pdf",
-                filename=os.path.basename(pdf_file)
-            )
-    # ❌ Prevent sending empty email
-    if uploaded_file is None and not (pdf_file and os.path.exists(pdf_file)):
+
+    # ✅ GENERATED PDF (FIXED)
+    if pdf_file:
+        msg.add_attachment(
+            pdf_file["pdf_bytes"],   # 🔥 THIS is the fix
+            maintype="application",
+            subtype="pdf",
+            filename=pdf_file["filename"]
+        )
+
+    # ❌ prevent empty email
+    if uploaded_file is None and pdf_file is None:
         st.warning("No file to send.")
         return
-    # Send email
+
+    # send email
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         server.send_message(msg)
+
     st.success("Email sent!")
-if "captcha_question" not in st.session_state:
-    def generate_captcha():
-        a = random.randint(1, 10)
-        b = random.randint(1, 10)
-        return f"{a} + {b}", str(a + b)
-    q, a = generate_captcha()
-    st.session_state.captcha_question = q
-    st.session_state.captcha_answer = a
-user_captcha = st.text_input(
-    f"🔒 CAPTCHA: What is {st.session_state.captcha_question}?"
-)
-if "email_count" not in st.session_state:
-    st.session_state.email_count = 0
-def handle_submit():
-    if user_captcha.strip() != st.session_state.captcha_answer:
-        st.error("❌ Incorrect answer. Please answer the CAPTCHA correctly to send your responses.")
-        return
-    pdf_file = generate_pdf(answers)
-    try:
-        send_email(pdf_file)
-        st.session_state.email_count += 1
-        # 🔥 set success step
-        st.session_state.step = "success"
-        # regenerate CAPTCHA for next time
-        a = random.randint(1, 49)
-        b = random.randint(1, 49)
-        st.session_state.captcha_question = f"{a} + {b}"
-        st.session_state.captcha_answer = str(a + b)
-        st.rerun()
-    except Exception as e:
-        st.error(f"Failed to send email: {e}")
-
-if st.button("Send Responses"):
-    handle_submit()
-
 st.warning("The button will also send attachments if any are included.")
 st.warning("One submission per correct CAPTCHA.")
 
