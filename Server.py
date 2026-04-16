@@ -176,6 +176,7 @@ def handle_submit():
         st.error("❌ Incorrect answer. Please answer the CAPTCHA correctly to send your responses.")
         return
     pdf_file = generate_pdf(answers)
+    st.write("Email:",pdf_file["filename"])
     st.session_state["pdf_bytes"] = pdf_file["pdf_bytes"]
     st.session_state["filename"] = pdf_file["filename"]
     try:
