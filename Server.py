@@ -108,7 +108,7 @@ def send_email(pdf_file=None):
         )
     # ✅ Attach generated PDF (only if it exists)
     if pdf_file and os.path.exists(pdf_file):
-        st.write(f{"pdf_file:",pdf_file})
+        st.write("pdf_file:", pdf_file)
         with open(pdf_file, "rb") as f:
             msg.add_attachment(
                 f.read(),
