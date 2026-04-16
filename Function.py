@@ -3,11 +3,9 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
-from fpdf import FPDF
 import datetime
 import textwrap
 import streamlit as st
-from fpdf import FPDF
 import os
 import pickle
 import smtplib

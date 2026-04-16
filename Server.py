@@ -14,7 +14,6 @@ from BasicInfo import Disclaimers, Income, RequiredDocuments,F1099R,SSA, OtherIn
 from BasicInfo import SchC, SchD, Deductions, CDCC, EducationCredits, RefundAndPayment, FinalDisclaimer, FinalNotes
 from Function import ask_question, generate_pdf
 
-
 Disclaimers()
 RequiredDocuments()
 BasicInfo()
@@ -123,10 +122,6 @@ def safe_text(value, width=80):
         result.append(" ".join(rebuilt))
 
     return "\n".join(result)
-
-
-
-
 
 def safe_one_line(value, max_len=120):
     if isinstance(value, datetime.date):

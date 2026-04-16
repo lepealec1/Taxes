@@ -178,7 +178,7 @@ def HealthInsurance():
             ask_question(answers, "coverage_type", "Type of Health Care Coverage",
                         input_type="checkbox",
                         options=["Marketplace","Medi-Cal", "Medicaid", "Medicare", "Employee Sponsored", "Other"],
-                        columns=True)
+                        columns=False)
         health_forms=answers.get("health_forms") or []
         health_1095_a=[
                             "Some people in my household are listed on my 1095-A but some members have their own health insurance",
@@ -250,12 +250,14 @@ def MiscQuestions():
         ask_question(
             answers,
             "IPPIN",
-            f"Do {pronouns} have an IRS issued IPPIN?",
+            f"Do {pronouns} have an IRS issued identity protection PIN (IPPIN)?",
             input_type="radio",
             options=typical_basic_response,
             columns=False,
             help_text=f"An IPPIN is a six-digit number the IRS issues to taxpayers to help prevent someone else from filing a fraudulent tax return using {pronouns} Social Security number."
         )
+        if answers.get("IPPIN") ==  "No" or answers.get("IPPIN") ==  "Unsure":
+            st.warning(f"⚠️ A missing an IPPIN is the number reason why the IRS rejects a return, if {pronouns} have one {pronouns} must include or the IRS will not accept your tax return.")
         answers["EstimatedTaxPayments"] = []
         ask_question(
             answers,
@@ -744,10 +746,8 @@ def SchC():
             year_data["1099_k_amounts"] = st.number_input("Number of 1099-K Forms", min_value=0, step=1, key=f"k_{i}")
             year_data["1099_misc_amounts"] = st.number_input("Number of 1099-MISC Forms", min_value=0, step=1, key=f"misc_{i}")
             year_data["other_cash_income"] = st.number_input("Other Cash Income ($)", step=50, key=f"cash_{i}")
-
             # ---------------- EXPENSES ----------------
             st.subheader("Business Expenses")
-
             year_data["advertising"] = st.number_input("Advertising ($)", step=50, key=f"adv_{i}")
             year_data["contract_labor"] = "Out of Scope"
             year_data["commission_and_fees"] = st.number_input("Commission ($)", step=50, key=f"comm_{i}")
@@ -1106,58 +1106,6 @@ def Deductions():
                 )
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def CDCC():
     global answers, yes_no, pronouns, pronouns2
 
@@ -1328,8 +1276,7 @@ def CDCC():
 
 
 def EducationCredits():
-    global answers, yes_no, pronouns2
-
+    global answers, yes_no, pronouns2, typical_basic_response
     with st.expander("Education Credits (1098-T)", expanded=False):
         ask_question(answers, "educational_expenses",
             f"Do you, your spouse, or any of your dependents have any educational expenses?",
@@ -1342,11 +1289,12 @@ def EducationCredits():
             # =========================
             st.subheader("Student Information")
             num_students = st.number_input(
-                "How many students? (Max 5)",
+                "How many students in your household?",
                 min_value=1,
                 max_value=5,
                 step=1,
-                key="EDU_num_students"
+                key="EDU_num_students",
+                help="Only include students you are claiming."
             )
             answers["EDU_students"] = []
             tax_year = int(answers.get("tax_year"))
@@ -1393,7 +1341,7 @@ def EducationCredits():
                     key=f"EDU_felony_{i}"
                 )
                 student["aotc_4_years"] = st.radio(
-                    "Has the student claimed AOTC for more than 4 years?",
+                    "Has the student claimed American Opportunity Tax Credit (AOTC) for more than 4 years?",
                     yes_no,
                     index=None,
                     key=f"EDU_aotc_{i}"
@@ -1405,7 +1353,7 @@ def EducationCredits():
                     key=f"EDU_box46_{i}"
                 )
                 if student.get('box4_or_6')=="Yes":
-                    st.warning("❌ Out of scope")
+                    st.warning("❌ Out of scope: requires adjustments of prior tax years.")
                     return
                 student["payments_box1"] = st.number_input(
                     "Payments Received (Box 1)  ($)",
@@ -1423,8 +1371,7 @@ def EducationCredits():
                     "Additional qualified educational expenses ($)",
                     key=f"EDU_expenses_{i}",min_value=0
                 )
-                st.warning("📚 educational expenses includes books, supplies, etc.")
-                st.warning("📚 Do not include expenses like rent or living expenses.")
+                st.warning("📚 Qualified educational expenses includes tuition, fees, books, and supplies, required for school. \n\n Do not include expenses like rent or living expenses.")
                 # ---------------- CALCULATION ----------------
                 qee = (
                     student["payments_box1"]
