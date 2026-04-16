@@ -7,7 +7,7 @@ import streamlit as st
 from fpdf import FPDF
 import time, pickle, os, textwrap, datetime, smtplib, random
 
-st.title("VITA Supplemental Questionnaire")
+st.title("VITA Supplemental Questionnaire v1")
 
 from BasicInfo import MiscQuestions, answers, CaResidency, HealthInsurance, BasicInfo
 from BasicInfo import Disclaimers, Income, RequiredDocuments,F1099R,SSA, OtherIncome
