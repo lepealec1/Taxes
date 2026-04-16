@@ -165,18 +165,3 @@ st.warning("One submission per correct CAPTCHA.")
 st.metric("📧 Emails Sent Successfully:", st.session_state.email_count)
 
 
-
-from datetime import date
-
-pdf_file = generate_pdf(answers,email=False)
-with open(pdf_file, "rb") as f:
-    pdf_bytes = f.read()
-
-today = date.today().strftime("%Y-%m-%d")
-
-st.download_button(
-    "Download PDF",
-    data=pdf_file,
-    file_name=f"{answers.get('name', 'user')}_VITA_Questionnaire_{today}.pdf",
-    mime="application/pdf"
-) 
