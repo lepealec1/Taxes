@@ -87,6 +87,7 @@ def safe_one_line(value, max_len=120):
 
     return text
 uploaded_file = st.file_uploader("Upload a document (optional)")
+
 def send_email(pdf_file=None):
     st.write("pdf_file:", pdf_file)
 
@@ -131,6 +132,48 @@ def send_email(pdf_file=None):
         server.send_message(msg)
 
     st.success("Email sent!")
+
+
+
+
+
+
+
+
+if "email_count" not in st.session_state:
+    st.session_state.email_count = 0
+
+
+
+
+
+
+
+
+def handle_submit():
+    if user_captcha.strip() != st.session_state.captcha_answer:
+        st.error("❌ Incorrect answer. Please answer the CAPTCHA correctly to send your responses.")
+        return
+    pdf_file = generate_pdf(answers)
+    st.session_state["pdf_bytes"] = pdf_file["pdf_bytes"]
+    st.session_state["filename"] = pdf_file["filename"]
+    try:
+        send_email(pdf_file)
+        st.session_state.email_count += 1
+        # 🔥 set success step
+        st.session_state.step = "success"
+        # regenerate CAPTCHA for next time
+        a = random.randint(1, 49)
+        b = random.randint(1, 49)
+        st.session_state.captcha_question = f"{a} + {b}"
+        st.session_state.captcha_answer = str(a + b)
+        st.rerun()
+    except Exception as e:
+        st.error(f"Failed to send email: {e}")
+
+if st.button("Send Responses"):
+    handle_submit()
+
 st.warning("The button will also send attachments if any are included.")
 st.warning("One submission per correct CAPTCHA.")
 
