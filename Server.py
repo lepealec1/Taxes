@@ -184,8 +184,8 @@ def handle_submit():
         # 🔥 set success step
         st.session_state.step = "success"
         # regenerate CAPTCHA for next time
-        a = random.randint(1, 49)
-        b = random.randint(1, 49)
+        a = random.randint(1, 9)
+        b = random.randint(1, 9)
         st.session_state.captcha_question = f"{a} + {b}"
         st.session_state.captcha_answer = str(a + b)
         st.rerun()
